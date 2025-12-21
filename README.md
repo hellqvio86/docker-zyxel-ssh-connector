@@ -73,6 +73,16 @@ make python-install
 make test
 ```
 
+### Validation
+
+We use `uv` for dependency management and development tasks. Run the project validation (formatting and static typing checks) with:
+
+```bash
+make python-validate
+```
+
+This runs `isort`, `black`, and `mypy` (via `uv`) to ensure imports, formatting, and types are correct.
+
 ## Usage
 
 ### Local CLI Commands
@@ -199,7 +209,7 @@ docker-zyxel-ssh-connector/
 ├── src/tests/
 │   ├── test_client.py         # Client tests
 │   └── test_cli.py            # CLI tests
-├── Dockerfile.zyxel           # Docker container definition
+├── Dockerfile                 # Multi-stage Docker container definition (builder + runtime)
 ├── pyproject.toml             # Python project configuration
 ├── Makefile                   # Build and run commands
 └── README.md
