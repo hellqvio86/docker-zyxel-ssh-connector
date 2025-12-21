@@ -125,8 +125,8 @@ cli-exec:
 
 # Docker commands
 build:
-	@echo "Building Docker container..."
-	podman build -t zyxel-ssh-connector -f Dockerfile.zyxel .
+	@echo "Building Docker container (multi-stage builder + final)..."
+	@$(MAKE) docker-final
 
 .PHONY: docker-build docker-final docker-clean
 docker-build:

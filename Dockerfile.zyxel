@@ -1,36 +1,22 @@
-FROM ubuntu:18.04 as base
+FROM python:3.14-slim as base
 
-# Install OpenSSH client with legacy crypto support
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install OpenSSH client and minimal utilities
 RUN apt-get update && \
-    apt-get install -y openssh-client curl ca-certificates && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get install -y --no-install-recommends openssh-client curl ca-certificates && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install modern Python (3.12) from deadsnakes PPA
-RUN apt-get update && \
-    apt-get install -y software-properties-common && \
-    add-apt-repository ppa:deadsnakes/ppa && \
-    apt-get update && \
-    apt-get install -y python3.12 python3.12-venv python3.12-dev && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-# Install uv
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh
-ENV PATH="/root/.cargo/bin:${PATH}"
-
-# Create virtual environment and install dependencies
 WORKDIR /app
 
-# Copy project files
+# Copy project metadata and source
 COPY pyproject.toml ./
 COPY src ./src
 
-# Create venv and install the package
-RUN python3.12 -m venv /app/venv && \
-    /app/venv/bin/pip install --upgrade pip && \
-    . /app/venv/bin/activate && \
-    uv pip install -e .
+# Create a virtualenv and install the package and its dependencies
+RUN python -m venv /app/venv && \
+    /app/venv/bin/python -m pip install --upgrade pip setuptools wheel && \
+    /app/venv/bin/pip install .
 
 ENV PATH="/app/venv/bin:${PATH}"
 
