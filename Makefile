@@ -1,4 +1,4 @@
-.PHONY: build run connect clean python-build python-install python-clean python-test python-test-verbose python-test-cov python-lint python-lint-fix python-format python-format-check show-version show-config show-interfaces show-vlans show-mac-table show-system cli-version cli-config cli-interfaces cli-vlans cli-mac-table cli-system cli-connect cli-exec help
+.PHONY: build run connect clean python-build python-install python-clean python-test python-test-verbose python-test-cov python-lint python-lint-fix python-format python-format-check python-validate show-version show-config show-interfaces show-vlans show-mac-table show-system cli-version cli-config cli-interfaces cli-vlans cli-mac-table cli-system cli-connect cli-exec help
 
 # Python development commands
 python-build:
@@ -44,6 +44,15 @@ python-format:
 
 python-format-check:
 	uv run black --check src
+
+# Validation: code formatting and static typing
+.PHONY: python-validate
+python-validate:
+	@echo "Running import sorting (isort) and static typing (mypy)..."
+	uv run isort src
+	uv run isort src/tests
+	uv run black src
+	uv run mypy --show-error-codes src
 
 # Local CLI commands (without Docker) - requires legacy SSH on your system
 cli-version:
