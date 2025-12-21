@@ -18,7 +18,7 @@ connect:
 		exit 1; \
 	fi
 	@echo "Connecting to Zyxel switch at $(host)..."
-	podman run -it --rm --net=host zyxel-ssh-connector ssh $(if $(user),$(user),admin)@$(host)
+	podman run -it --rm --net=host zyxel-ssh-connector ssh $(if $(user),$(user),admin)@$(host) -o StrictHostKeyChecking=no
 
 # Clean up the container image
 clean:
