@@ -1,0 +1,47 @@
+[project]
+name = "zyxel-cli"
+version = "0.1.0"
+description = "CLI tool for Zyxel GS1900 switches"
+requires-python = ">=3.10"
+dependencies = [
+    "paramiko>=3.4.0",
+    "cryptography>=41.0.0",
+]
+
+[project.scripts]
+zyxel-cli = "zyxel_cli.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--verbose",
+    "--cov=src/zyxel_cli",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+]
+
+[tool.black]
+line-length = 100
+target-version = ['py310']
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
