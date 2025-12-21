@@ -128,6 +128,20 @@ build:
 	@echo "Building Docker container..."
 	podman build -t zyxel-ssh-connector -f Dockerfile.zyxel .
 
+.PHONY: docker-build docker-final docker-clean
+docker-build:
+	@echo "Building builder image (zyxel-builder)..."
+	podman build -t zyxel-builder -f Dockerfile.build .
+
+docker-final: docker-build
+	@echo "Building final runtime image (zyxel-ssh-connector)..."
+	podman build -t zyxel-ssh-connector -f Dockerfile .
+
+docker-clean:
+	@echo "Removing images zyxel-builder and zyxel-ssh-connector..."
+	-podman rmi zyxel-ssh-connector || true
+	-podman rmi zyxel-builder || true
+
 run:
 	@echo "Running zyxel-ssh-connector container..."
 	podman run -it --rm --net=host zyxel-ssh-connector bash

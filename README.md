@@ -36,8 +36,9 @@ make cli-connect host=192.168.1.1
 ### Option 2: Docker Container (Universal Compatibility)
 
 ```bash
-# Build the container (includes legacy SSH)
-make build
+# Build the runtime container (two-stage: builder then final)
+# This builds a builder image and then the final minimal runtime image
+make docker-final
 
 # Use it
 make show-version host=192.168.1.1
@@ -106,8 +107,11 @@ make cli-version host=192.168.1.1 user=admin password=mypass
 Use these for guaranteed compatibility with legacy switches:
 
 ```bash
-# Build the container (first time only)
-make build
+# Build the final runtime image (builds builder first)
+make docker-final
+
+# If you want to inspect or rebuild only the builder image:
+make docker-build
 
 # Show switch information
 make show-version host=192.168.1.1
@@ -192,7 +196,7 @@ docker-zyxel-ssh-connector/
 │       ├── __init__.py
 │       ├── client.py          # SSH session handling
 │       └── cli.py             # CLI interface
-├── tests/
+├── src/tests/
 │   ├── test_client.py         # Client tests
 │   └── test_cli.py            # CLI tests
 ├── Dockerfile.zyxel           # Docker container definition

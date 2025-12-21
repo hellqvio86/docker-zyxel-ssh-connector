@@ -1,21 +1,28 @@
 version: 2
 updates:
-  # Docker dependencies
+  - package-ecosystem: "uv"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    # Dependabot will read `pyproject.toml` and attempt to update dependencies.
+    # `uv.lock` is a project lockfile; Dependabot will surface updates based on
+    # the manifest and lockfile.
+
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "monday"
       time: "09:00"
-    open-pull-requests-limit: 5"
+    open-pull-requests-limit: 5
     labels:
-      - "dependencies"
-      - "docker"
+      - dependencies
+      - docker
     commit-message:
       prefix: "docker"
       include: "scope"
 
-  # GitHub Actions dependencies
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
@@ -24,8 +31,8 @@ updates:
       time: "09:00"
     open-pull-requests-limit: 5
     labels:
-      - "dependencies"
-      - "github-actions"
+      - dependencies
+      - github-actions
     commit-message:
       prefix: "ci"
       include: "scope"
