@@ -3,15 +3,13 @@
 # Python development commands
 python-build:
 	@echo "Setting up Python development environment..."
-	uv venv
-	@echo "Installing package in development mode..."
-	uv pip install -e "."
+	uv sync --no-dev
 	@echo "✅ Python environment ready!"
 	@echo "Activate with: source .venv/bin/activate"
 
 python-install:
 	@echo "Installing package with dev dependencies..."
-	uv pip install -e ".[dev]"
+	uv sync
 	@echo "✅ Development dependencies installed!"
 
 python-clean:
