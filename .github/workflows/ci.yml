@@ -75,13 +75,20 @@ jobs:
             type=raw,value=${{ steps.get_version.outputs.version }}
             type=raw,value=latest,enable={{is_default_branch}}
             type=sha,prefix=sha-
+      
+      # Build docker image
+      - name: "Build docker image"
+        if: github.event_name == 'push' && github.ref != 'refs/heads/main'
+        run: |
+          make docker-build
 
-      - name: Build and Push Docker image
+      - name: Build and push docker image only on main branch
         uses: docker/build-push-action@v5
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         with:
           context: .
           file: ./Dockerfile
-          push: ${{ github.event_name == 'push' && secrets.DOCKER_USERNAME != '' }}
+          push: ${{ github.event_name == 'push' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
