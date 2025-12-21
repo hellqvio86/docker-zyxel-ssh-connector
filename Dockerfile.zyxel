@@ -1,0 +1,17 @@
+FROM debian:buster
+
+# Update sources to use archive repository (Buster is EOL)
+RUN echo "deb http://archive.debian.org/debian buster main" > /etc/apt/sources.list && \
+    echo "deb http://archive.debian.org/debian-security buster/updates main" >> /etc/apt/sources.list
+
+# Install OpenSSH client with older crypto support
+RUN apt-get update && \
+    apt-get install -y openssh-client && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /root
+
+# Default command
+CMD ["/bin/bash"]
