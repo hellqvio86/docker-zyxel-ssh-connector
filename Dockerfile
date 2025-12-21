@@ -19,10 +19,12 @@ WORKDIR /src
 COPY pyproject.toml uv.lock ./
 COPY src ./src
 
-# Create a virtualenv and install the package + deps into it
-RUN python -m venv /opt/venv && \
-    /opt/venv/bin/python -m pip install --upgrade pip setuptools wheel && \
-    /opt/venv/bin/pip install .
+# Use `uv` to create a project venv and install the package, then copy to /opt/venv
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh && \
+    export PATH="/root/.local/bin:$PATH" && \
+    uv venv && \
+    uv pip install . && \
+    cp -a .venv /opt/venv
 
 # Final runtime image: minimal image containing only runtime deps and the venv copied from builder
 FROM python:3.14-slim AS runtime

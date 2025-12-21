@@ -19,9 +19,11 @@ WORKDIR /src
 COPY pyproject.toml uv.lock ./
 COPY src ./src
 
-# Create a virtualenv and install the package + deps into it
-RUN python -m venv /opt/venv && \
-    /opt/venv/bin/python -m pip install --upgrade pip setuptools wheel && \
-    /opt/venv/bin/pip install .
+# Install uv, create uv-managed venv and install the package into it
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh && \
+    export PATH="/root/.local/bin:$PATH" && \
+    uv venv && \
+    uv pip install . && \
+    cp -a .venv /opt/venv
 
 # Keep the venv in the builder image for the final stage to copy
