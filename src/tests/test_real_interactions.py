@@ -39,10 +39,10 @@ COMMAND_MAP = {
         b"  VID  |     VLAN Name    |        Untagged Ports        |        Tagged Ports          |  Type   \r\n",
         b"-------+------------------+------------------------------+------------------------------+---------\r\n",
         b"     1 |          default |                  1-24,lag1-8 |                          --- | Default \r\n",
-        b"     2 |            ALARM |                          --- |                           23 | Static \r\n",
-        b"     3 |      IOTInternet |                          --- |                         8,23 | Static \r\n",
-        b"     5 |         LocalIOT |                          --- |                           23 | Static \r\n",
-        b"     7 |        PANNA0007 |                          --- |                           23 | Static \r\n",
+        b"     2 |           VLAN_2 |                          --- |                           23 | Static \r\n",
+        b"     3 |           VLAN_3 |                          --- |                         8,23 | Static \r\n",
+        b"     5 |           VLAN_5 |                          --- |                           23 | Static \r\n",
+        b"     7 |           VLAN_7 |                          --- |                           23 | Static \r\n",
         b"GS1900# "
     ]
 }
@@ -54,7 +54,7 @@ def mock_session(monkeypatch):
     shell = FakeShell(initial_chunks=initial, command_map=COMMAND_MAP)
     client = FakeClient(shell)
     
-    session = ZyxelSession(host="zyxel.hellqvio.se", user="admin", password="password")
+    session = ZyxelSession(host="zyxel.example.com", user="admin", password="password")
     session.client = client
     
     # Speed up sleeps
@@ -74,8 +74,8 @@ def test_interface_status_error(mock_session):
 def test_vlan_command(mock_session):
     out = mock_session.execute_command(command="show vlan")
     assert "VLAN Name" in out
-    assert "IOTInternet" in out
-    assert "PANNA0007" in out
+    assert "VLAN_3" in out
+    assert "VLAN_7" in out
     assert "Untagged Ports" in out
 
 def test_unknown_command_returns_empty_or_timeout(mock_session):
