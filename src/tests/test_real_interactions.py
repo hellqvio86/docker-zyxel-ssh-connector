@@ -52,7 +52,7 @@ def mock_session(monkeypatch):
     client = FakeClient(shell)
 
     session = ZyxelSession(host="zyxel.example.com", user="admin", password="password")
-    session.client = client
+    session.client = client  # type: ignore[assignment]
 
     # Speed up sleeps
     monkeypatch.setattr(time, "sleep", lambda s: None)
