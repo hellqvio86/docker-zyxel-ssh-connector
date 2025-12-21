@@ -18,6 +18,7 @@ COMMANDS: dict[str, str] = {
     "mac-table": "show mac address-table",
 }
 
+
 def create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="CLI tool for Zyxel GS1900 switches",
@@ -99,6 +100,11 @@ def handle_args(*, args: argparse.Namespace) -> Optional[str]:
 
                 if args.output_json:
                     result = parse_output(cmd, output)
+
+                    logger.debug(
+                        "Parsed json result",
+                        extra={"host": args.host, "command": args.command, "output": result},
+                    )
                     print(json.dumps(result, indent=2))
                 else:
                     print(output)

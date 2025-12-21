@@ -55,7 +55,9 @@ class ZyxelSession:
             shell.recv(4096)
 
         # Send newline to get prompt
-        logger.debug("Sending initial newline to get prompt", extra={"host": self.host, "command": command})
+        logger.debug(
+            "Sending initial newline to get prompt", extra={"host": self.host, "command": command}
+        )
 
         shell.send(b"\n")
         time.sleep(ZYXEL_SLEEP_BETWEEN_COMMANDS)
@@ -82,7 +84,10 @@ class ZyxelSession:
                 idle_count = 0  # Reset idle counter when data received
 
                 if "--More--" in chunk:
-                    logger.debug("Detected --More-- prompt, sending space", extra={"host": self.host, "command": command})
+                    logger.debug(
+                        "Detected --More-- prompt, sending space",
+                        extra={"host": self.host, "command": command},
+                    )
                     shell.send(b" ")
 
                 logger.debug(
