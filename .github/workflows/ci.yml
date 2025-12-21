@@ -26,6 +26,10 @@ jobs:
           pip install uv
           uv sync
 
+      - name: Install development dependencies
+        run: |
+          make python-install
+
       - name: Validate code (isort, black, mypy)
         run: make python-validate
 
