@@ -1,4 +1,4 @@
-.PHONY: build run connect clean python-build python-install python-clean python-test python-test-verbose python-test-cov python-lint python-lint-fix python-format python-format-check python-validate show-version show-config show-interfaces show-vlans show-mac-table show-system cli-version cli-config cli-interfaces cli-vlans cli-mac-table cli-system cli-connect cli-exec help
+.PHONY: build run connect clean python-build python-install python-clean python-test python-test-verbose python-test-cov python-lint python-lint-fix python-format python-format-check python-validate show-version show-config show-interfaces show-vlans show-mac-table cli-version cli-config cli-interfaces cli-vlans cli-mac-table cli-connect cli-exec help
 
 # Python development commands
 python-build:
@@ -98,14 +98,6 @@ cli-mac-table:
 	@echo "Getting MAC address table from $(host)..."
 	uv run zyxel-cli -H $(host) -u $(if $(user),$(user),admin) $(if $(password),-p $(password),) mac-table
 
-cli-system:
-	@if [ -z "$(host)" ]; then \
-		echo "Error: host parameter required"; \
-		echo "Usage: make cli-system host=192.168.1.1 [user=admin] [password=secret]"; \
-		exit 1; \
-	fi
-	@echo "Getting system information from $(host)..."
-	uv run zyxel-cli -H $(host) -u $(if $(user),$(user),admin) $(if $(password),-p $(password),) system
 
 cli-connect:
 	@if [ -z "$(host)" ]; then \
@@ -212,14 +204,6 @@ show-mac-table:
 	@echo "Getting MAC address table from $(host) via Docker..."
 	@podman run -it --rm --net=host zyxel-ssh-connector zyxel-cli -H $(host) -u $(if $(user),$(user),admin) $(if $(password),-p $(password),) mac-table
 
-show-system:
-	@if [ -z "$(host)" ]; then \
-		echo "Error: host parameter required"; \
-		echo "Usage: make show-system host=192.168.1.1 [user=admin] [password=secret]"; \
-		exit 1; \
-	fi
-	@echo "Getting system information from $(host) via Docker..."
-	@podman run -it --rm --net=host zyxel-ssh-connector zyxel-cli -H $(host) -u $(if $(user),$(user),admin) $(if $(password),-p $(password),) system
 
 # Help
 help:
@@ -239,7 +223,7 @@ help:
 	@echo "  make cli-interfaces     - Show interfaces"
 	@echo "  make cli-vlans          - Show VLANs"
 	@echo "  make cli-mac-table      - Show MAC table"
-	@echo "  make cli-system         - Show system info"
+
 	@echo "  make cli-connect        - Interactive session"
 	@echo "  make cli-exec cmd='...' - Execute custom command"
 	@echo ""
@@ -252,7 +236,7 @@ help:
 	@echo "  make show-interfaces    - Show interfaces"
 	@echo "  make show-vlans         - Show VLANs"
 	@echo "  make show-mac-table     - Show MAC table"
-	@echo "  make show-system        - Show system info"
+
 	@echo "  make connect            - Interactive session"
 	@echo "  make run                - Run bash in container"
 	@echo ""

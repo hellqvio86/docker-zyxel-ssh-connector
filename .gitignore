@@ -44,3 +44,5 @@ htmlcov/
 # OS
 .DS_Store
 Thumbs.db
+
+zyxel_ssh_debug.log

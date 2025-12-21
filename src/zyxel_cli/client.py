@@ -62,11 +62,22 @@ class ZyxelSession:
         time.sleep(0.5)
 
         # Collect output
+        # Collect output
         output = ""
-        while shell.recv_ready():
-            chunk = shell.recv(4096).decode("utf-8", errors="ignore")
-            output += chunk
-            time.sleep(0.1)
+        idle_count = 0
+        max_idle = 20  # 2 seconds timeout (20 * 0.1)
+
+        while idle_count < max_idle:
+            if shell.recv_ready():
+                chunk = shell.recv(4096).decode("utf-8", errors="ignore")
+                output += chunk
+                idle_count = 0  # Reset idle counter when data received
+
+                if "--More--" in chunk:
+                    shell.send(b" ")
+            else:
+                time.sleep(0.1)
+                idle_count += 1
 
         # Send exit
         shell.send(b"exit\n")

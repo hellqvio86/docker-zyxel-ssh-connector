@@ -33,6 +33,7 @@ def make_args(cmd: str, **extra) -> argparse.Namespace:
     ns.port = extra.get("port", 22)
     ns.command = cmd
     ns.exec_command = extra.get("exec_command", "")
+    ns.debug = extra.get("debug", False)
     return ns
 
 

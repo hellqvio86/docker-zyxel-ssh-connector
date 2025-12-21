@@ -103,7 +103,7 @@ Use these for development and testing (requires legacy SSH support):
 ```bash
 # Show switch information
 make cli-version host=192.168.1.1
-make cli-system host=192.168.1.1
+
 
 # Network configuration
 make cli-interfaces host=192.168.1.1
@@ -136,7 +136,7 @@ make docker-build
 
 # Show switch information
 make show-version host=192.168.1.1
-make show-system host=192.168.1.1
+
 
 # Network configuration
 make show-interfaces host=192.168.1.1
@@ -243,7 +243,6 @@ docker-zyxel-ssh-connector/
 | `make cli-interfaces` | Show interfaces | `make cli-interfaces host=192.168.1.1` |
 | `make cli-vlans` | Show VLANs | `make cli-vlans host=192.168.1.1` |
 | `make cli-mac-table` | Show MAC table | `make cli-mac-table host=192.168.1.1` |
-| `make cli-system` | Show system info | `make cli-system host=192.168.1.1` |
 | `make cli-connect` | Interactive SSH | `make cli-connect host=192.168.1.1` |
 | `make cli-exec` | Custom command | `make cli-exec host=192.168.1.1 cmd='show ip'` |
 
@@ -256,7 +255,6 @@ docker-zyxel-ssh-connector/
 | `make show-interfaces` | Show interfaces | `make show-interfaces host=192.168.1.1` |
 | `make show-vlans` | Show VLANs | `make show-vlans host=192.168.1.1` |
 | `make show-mac-table` | Show MAC table | `make show-mac-table host=192.168.1.1` |
-| `make show-system` | Show system info | `make show-system host=192.168.1.1` |
 | `make connect` | Interactive SSH | `make connect host=192.168.1.1` |
 | `make run` | Bash shell | `make run` |
 
