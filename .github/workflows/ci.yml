@@ -11,8 +11,14 @@ jobs:
       matrix:
         python-version: ['3.10']
 
+    permissions:
+      contents: write
+
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Need full history for pushing, though shallow with token often works, but safe choice
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -30,8 +36,23 @@ jobs:
       - name: Validate code (isort, black, mypy)
         run: make python-validate
 
-      - name: Run tests with uv
-        run: uv run pytest --maxfail=1
+      - name: Run tests with coverage
+        run: uv run pytest --cov=src/zyxel_cli --cov-report=term-missing --maxfail=1
+
+      - name: Generate Coverage Badge
+        run: |
+          uv run coverage-badge -o coverage.svg -f
+
+      - name: Commit Badge
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          if [[ `git status --porcelain coverage.svg` ]]; then
+            git config --local user.email "action@github.com"
+            git config --local user.name "GitHub Action"
+            git add coverage.svg
+            git commit -m "chore: update coverage badge [skip ci]"
+            git push
+          fi
 
   docker-build:
     needs: validate

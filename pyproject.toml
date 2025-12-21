@@ -24,6 +24,7 @@ dev = [
     "isort>=5.0.0",
     "mypy>=1.10.0",
     "types-paramiko>=0.0.0",
+    "coverage-badge>=1.0.0",
 ]
 
 [tool.pytest.ini_options]
