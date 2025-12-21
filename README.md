@@ -87,6 +87,13 @@ make python-validate
 
 This runs `isort`, `black`, and `mypy` (via `uv`) to ensure imports, formatting, and types are correct.
 
+Note: `python-validate` assumes development tools are already installed. Run the following once to install dev dependencies before using the validation target:
+
+```bash
+make python-install
+make python-validate
+```
+
 ## Usage
 
 ### Local CLI Commands
