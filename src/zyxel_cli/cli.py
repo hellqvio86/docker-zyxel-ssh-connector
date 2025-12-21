@@ -1,12 +1,8 @@
 """CLI interface for Zyxel switches"""
 
-import argparse
-import getpass
 import sys
 
-from .client import ZyxelSession
 from .commands import create_parser, handle_args
-from .config import resolve_password
 
 # Command mapping
 COMMANDS: dict[str, str] = {
@@ -15,7 +11,6 @@ COMMANDS: dict[str, str] = {
     "interfaces": "show interface status",
     "vlans": "show vlan",
     "mac-table": "show mac address-table",
-
 }
 
 
@@ -27,7 +22,7 @@ Examples:
   %(prog)s -H switch.local -u admin -p pass123 config
   %(prog)s -H 192.168.1.1 exec "show ip interface"
         """
-    
+
     args = parser.parse_args()
 
     if not args.command:
