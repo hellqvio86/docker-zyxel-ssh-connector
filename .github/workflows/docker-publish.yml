@@ -1,0 +1,5 @@
+name: Deprecated - docker-publish
+
+# This workflow has been superseded by `ci.yml`.
+# Docker build/publish is now performed from `.github/workflows/ci.yml`
+# Keep this file to avoid accidental runs until it's safe to remove.

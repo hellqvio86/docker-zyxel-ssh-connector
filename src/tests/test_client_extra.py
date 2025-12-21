@@ -110,6 +110,7 @@ def test_interactive_exits_on_eof(monkeypatch):
 
     # Inject fake termios/tty/select modules into sys.modules so local imports pick them up
     import sys as _sys
+
     monkeypatch.setitem(_sys.modules, "termios", FakeTermios)
     monkeypatch.setitem(_sys.modules, "tty", FakeTty)
 
@@ -130,6 +131,7 @@ def test_interactive_exits_on_eof(monkeypatch):
     monkeypatch.setitem(_sys.modules, "select", FakeSelect)
 
     import zyxel_cli.client as client_mod2
+
     monkeypatch.setattr(client_mod2.sys, "stdin", fake_stdin)
 
     # Should not raise

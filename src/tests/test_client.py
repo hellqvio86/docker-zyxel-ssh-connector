@@ -61,13 +61,13 @@ def test_execute_command_collects_output(monkeypatch):
     shell = FakeShell(initial_chunks=initial, response_chunks=response)
     client = FakeClient(shell)
 
-    session = ZyxelSession("host", "user", "pass")
-    session.client = client
+    session = ZyxelSession(host="host", user="user", password="pass")
+    session.client = client  # type: ignore[assignment]
 
     # Speed up sleeps
     monkeypatch.setattr(time, "sleep", lambda s: None)
 
-    out = session.execute_command("show version")
+    out = session.execute_command(command="show version")
 
     # At least the response should contain expected data
     assert "Output line 2" in out

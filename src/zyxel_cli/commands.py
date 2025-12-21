@@ -1,4 +1,5 @@
 """Command handling separated from CLI entrypoint for easier testing."""
+
 import argparse
 from typing import Optional
 
