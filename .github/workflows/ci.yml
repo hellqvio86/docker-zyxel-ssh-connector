@@ -26,5 +26,8 @@ jobs:
           pip install uv
           uv sync
 
+      - name: Validate code (isort, black, mypy)
+        run: make python-validate
+
       - name: Run tests with uv
         run: uv run pytest --maxfail=1 -q
