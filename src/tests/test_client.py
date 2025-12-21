@@ -14,9 +14,10 @@ def test_clean_output_removes_ansi_and_prompts():
 
 
 class FakeShell:
-    def __init__(self, initial_chunks=None, response_chunks=None):
+    def __init__(self, initial_chunks=None, response_chunks=None, command_map=None):
         self.initial_chunks = initial_chunks or []
         self.response_chunks = response_chunks or []
+        self.command_map = command_map or {}
         self.sent = []
         self.closed = False
         self._produced_response = False
@@ -38,6 +39,15 @@ class FakeShell:
         # When command is sent, make responses available
         if data and data.strip():
             self._produced_response = True
+            
+            # Check if this command (decoded and stripped) is in our map
+            try:
+                cmd_str = data.decode("utf-8").strip()
+                if cmd_str in self.command_map:
+                    # Appendmapped chunks to response_chunks
+                    self.response_chunks.extend(self.command_map[cmd_str])
+            except Exception:
+                pass
 
     def close(self):
         self.closed = True
