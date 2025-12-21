@@ -49,6 +49,7 @@ python-format-check:
 .PHONY: python-validate
 python-validate:
 	@echo "Running import sorting (isort) and static typing (mypy)..."
+	@$(MAKE) python-install
 	uv run isort src
 	uv run isort src/tests
 	uv run black src
