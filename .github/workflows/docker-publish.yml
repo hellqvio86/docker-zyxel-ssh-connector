@@ -41,11 +41,11 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
             type=sha,prefix=sha-
       
-      - name: Build Docker image
+      - name: Build Docker image (multi-stage)
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile.zyxel
+          file: ./Dockerfile
           push: false
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -57,7 +57,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile.zyxel
+          file: ./Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
