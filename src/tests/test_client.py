@@ -39,7 +39,7 @@ class FakeShell:
         # When command is sent, make responses available
         if data and data.strip():
             self._produced_response = True
-            
+
             # Check if this command (decoded and stripped) is in our map
             try:
                 cmd_str = data.decode("utf-8").strip()

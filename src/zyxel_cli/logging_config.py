@@ -18,10 +18,10 @@ class JSONFormatter(logging.Formatter):
             "host": getattr(record, "host", "unknown"),
             "command": getattr(record, "command", "unknown"),
         }
-        
+
         if hasattr(record, "output"):
             log_record["output"] = record.output
-        
+
         if record.exc_info:
             log_record["exception"] = self.formatException(record.exc_info)
 
@@ -44,9 +44,9 @@ def setup_logging(debug: bool = False) -> None:
     handler = logging.FileHandler(LOG_FILE, mode="a")
     formatter = JSONFormatter()
     handler.setFormatter(formatter)
-    
+
     # Remove existing handlers to avoid duplicates if called multiple times
     if logger.hasHandlers():
         logger.handlers.clear()
-        
+
     logger.addHandler(handler)

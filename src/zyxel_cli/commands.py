@@ -13,7 +13,6 @@ COMMANDS: dict[str, str] = {
     "interfaces": "show interface status",
     "vlans": "show vlan",
     "mac-table": "show mac address-table",
-
 }
 
 
@@ -35,7 +34,6 @@ def create_parser() -> argparse.ArgumentParser:
     subparsers.add_parser("interfaces", help="Show interface status")
     subparsers.add_parser("vlans", help="Show VLAN configuration")
     subparsers.add_parser("mac-table", help="Show MAC address table")
-
 
     exec_parser = subparsers.add_parser("exec", help="Execute custom command")
     exec_parser.add_argument("exec_command", help="Command to execute")
@@ -61,7 +59,7 @@ def handle_args(*, args: argparse.Namespace) -> Optional[str]:
     cmd_str = args.command
     if args.command == "exec":
         cmd_str = f"exec: {args.exec_command}"
-    
+
     logger.debug(f"Connecting to {args.host}", extra={"host": args.host, "command": cmd_str})
 
     with ZyxelSession(host=args.host, user=args.user, password=password, port=args.port) as session:
@@ -71,14 +69,19 @@ def handle_args(*, args: argparse.Namespace) -> Optional[str]:
         elif args.command == "exec":
             output = session.execute_command(command=args.exec_command)
             # Log output (escaping newlines could be good but raw string in JSON is handled by json.dumps)
-            logger.debug("Command result", extra={"host": args.host, "command": args.exec_command, "output": output})
+            logger.debug(
+                "Command result",
+                extra={"host": args.host, "command": args.exec_command, "output": output},
+            )
             print(output)
             return output
         else:
             cmd = COMMANDS.get(args.command)
             if cmd:
                 output = session.execute_command(command=cmd)
-                logger.debug("Command result", extra={"host": args.host, "command": cmd, "output": output})
+                logger.debug(
+                    "Command result", extra={"host": args.host, "command": cmd, "output": output}
+                )
                 print(output)
                 return output
 
