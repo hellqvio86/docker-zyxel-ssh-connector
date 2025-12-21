@@ -1,11 +1,8 @@
-"""CLI interface for Zyxel switches"""
-
+"""Command handling separated from CLI entrypoint for easier testing."""
 import argparse
-import getpass
-import sys
+from typing import Optional
 
 from .client import ZyxelSession
-from .commands import create_parser, handle_args
 from .config import resolve_password
 
 # Command mapping
@@ -19,16 +16,10 @@ COMMANDS: dict[str, str] = {
 }
 
 
-def main() -> None:
+def create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="CLI tool for Zyxel GS1900 switches",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  %(prog)s -H 192.168.1.1 version
-  %(prog)s -H switch.local -u admin -p pass123 config
-  %(prog)s -H 192.168.1.1 exec "show ip interface"
-        """,
     )
 
     parser.add_argument("-H", "--host", required=True, help="Switch hostname or IP")
@@ -49,21 +40,29 @@ Examples:
 
     subparsers.add_parser("interactive", help="Interactive shell")
 
-    args = parser.parse_args()
-
-    if not args.command:
-        parser.print_help()
-        sys.exit(1)
-
-    try:
-        handle_args(args=args)
-    except KeyboardInterrupt:
-        print("\nInterrupted")
-        sys.exit(1)
-    except Exception as e:
-        print(f"Error: {e}", file=sys.stderr)
-        sys.exit(1)
+    return parser
 
 
-if __name__ == "__main__":
-    main()
+def handle_args(*, args: argparse.Namespace) -> Optional[str]:
+    """Execute the requested action described by parsed `args`.
+
+    Returns output string for non-interactive commands, or None for interactive.
+    """
+    password = resolve_password(password=args.password, user=args.user, host=args.host)
+
+    with ZyxelSession(host=args.host, user=args.user, password=password, port=args.port) as session:
+        if args.command == "interactive":
+            session.interactive()
+            return None
+        elif args.command == "exec":
+            output = session.execute_command(command=args.exec_command)
+            print(output)
+            return output
+        else:
+            cmd = COMMANDS.get(args.command)
+            if cmd:
+                output = session.execute_command(command=cmd)
+                print(output)
+                return output
+
+    return None

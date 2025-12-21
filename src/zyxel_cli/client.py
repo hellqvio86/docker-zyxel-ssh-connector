@@ -3,7 +3,7 @@
 import re
 import sys
 import time
-from typing import Optional
+from typing import Optional, Any
 
 import paramiko
 
@@ -11,7 +11,7 @@ import paramiko
 class ZyxelSession:
     """SSH session handler for Zyxel switches"""
 
-    def __init__(self, host: str, user: str, password: str, port: int = 22):
+    def __init__(self, host: str, user: str, *, password: Optional[str] = None, port: int = 22):
         self.host = host
         self.user = user
         self.password = password
@@ -36,7 +36,7 @@ class ZyxelSession:
         except Exception as e:
             raise ConnectionError(f"Failed to connect to {self.host}: {e}")
 
-    def execute_command(self, command: str) -> str:
+    def execute_command(self, *, command: str) -> str:
         """Execute a command on the Zyxel switch"""
         if not self.client:
             raise RuntimeError("Not connected")
@@ -50,15 +50,15 @@ class ZyxelSession:
             shell.recv(4096)
 
         # Send newline to get prompt
-        shell.send("\n")
+        shell.send(b"\n")
         time.sleep(0.3)
 
         # Clear prompt
         if shell.recv_ready():
             shell.recv(4096)
 
-        # Send the actual command
-        shell.send(f"{command}\n")
+        # Send the actual command (send bytes to satisfy stubs)
+        shell.send(f"{command}\n".encode("utf-8"))
         time.sleep(0.5)
 
         # Collect output
@@ -69,7 +69,7 @@ class ZyxelSession:
             time.sleep(0.1)
 
         # Send exit
-        shell.send("exit\n")
+        shell.send(b"exit\n")
         shell.close()
 
         return self._clean_output(output)
@@ -97,19 +97,19 @@ class ZyxelSession:
                 r, w, e = select.select([shell, sys.stdin], [], [])
                 if shell in r:
                     try:
-                        data = shell.recv(1024)
-                        if len(data) == 0:
+                        recv_bytes = shell.recv(1024)
+                        if len(recv_bytes) == 0:
                             break
-                        sys.stdout.write(data.decode("utf-8", errors="ignore"))
+                        sys.stdout.write(recv_bytes.decode("utf-8", errors="ignore"))
                         sys.stdout.flush()
                     except:
                         pass
 
                 if sys.stdin in r:
-                    data = sys.stdin.read(1)
-                    if len(data) == 0:
+                    input_char = sys.stdin.read(1)
+                    if len(input_char) == 0:
                         break
-                    shell.send(data)
+                    shell.send(input_char.encode("utf-8"))
         finally:
             termios.tcsetattr(sys.stdin, termios.TCSADRAIN, oldtty)
 
@@ -138,11 +138,11 @@ class ZyxelSession:
 
         return "\n".join(lines)
 
-    def __enter__(self):
+    def __enter__(self) -> "ZyxelSession":
         """Context manager entry"""
         self.connect()
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type: object, exc_val: object, exc_tb: object) -> None:
         """Context manager exit"""
         self.close()
