@@ -2,43 +2,85 @@
     {
         "vid": "1",
         "name": "default",
-        "untagged_ports": "1-24,lag1-8",
-        "tagged_ports": "---",
+        "untagged_ports": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "20",
+            "21",
+            "22",
+            "23",
+            "24",
+            "lag1",
+            "lag2",
+            "lag3",
+            "lag4",
+            "lag5",
+            "lag6",
+            "lag7",
+            "lag8"
+        ],
+        "tagged_ports": [],
         "type": "Default"
     },
     {
         "vid": "2",
         "name": "fooobaz",
-        "untagged_ports": "---",
-        "tagged_ports": "23",
+        "untagged_ports": [],
+        "tagged_ports": [
+            "23"
+        ],
         "type": "Static"
     },
     {
         "vid": "3",
         "name": "foooo",
-        "untagged_ports": "---",
-        "tagged_ports": "8,23",
+        "untagged_ports": [],
+        "tagged_ports": [
+            "8",
+            "23"
+        ],
         "type": "Static"
     },
     {
         "vid": "4",
         "name": "foo",
-        "untagged_ports": "---",
-        "tagged_ports": "---",
+        "untagged_ports": [],
+        "tagged_ports": [],
         "type": "Static"
     },
     {
         "vid": "5",
         "name": "foobar",
-        "untagged_ports": "---",
-        "tagged_ports": "23",
+        "untagged_ports": [],
+        "tagged_ports": [
+            "23"
+        ],
         "type": "Static"
     },
     {
         "vid": "7",
         "name": "foobarbaz",
-        "untagged_ports": "---",
-        "tagged_ports": "23",
+        "untagged_ports": [],
+        "tagged_ports": [
+            "23"
+        ],
         "type": "Static"
     }
 ]

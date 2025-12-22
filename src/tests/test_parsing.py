@@ -19,12 +19,16 @@ def test_parse_vlan():
     assert len(vlans) == 2
     assert vlans[0]["vid"] == "1"
     assert vlans[0]["name"] == "default"
-    assert vlans[0]["untagged_ports"] == "1-24,lag1-8"
-    assert vlans[0]["tagged_ports"] == "---"
+    # Port ranges should now be expanded into lists
+    expected_untagged = [str(i) for i in range(1, 25)] + [f"lag{i}" for i in range(1, 9)]
+    assert vlans[0]["untagged_ports"] == expected_untagged
+    assert vlans[0]["tagged_ports"] == []
     assert vlans[0]["type"] == "Default"
 
     assert vlans[1]["vid"] == "2"
     assert vlans[1]["name"] == "ALARM"
+    assert vlans[1]["untagged_ports"] == []
+    assert vlans[1]["tagged_ports"] == ["23"]
 
 
 def test_parse_mac_table():

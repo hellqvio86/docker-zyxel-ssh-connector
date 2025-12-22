@@ -1,6 +1,51 @@
 from typing import Any, Dict, List
 
 
+def expand_port_range(port_str: str) -> List[str]:
+    """
+    Expand port range string into individual ports.
+
+    Examples:
+        "1-24,lag1-8" -> ["1", "2", ..., "24", "lag1", "lag2", ..., "lag8"]
+        "8,23" -> ["8", "23"]
+        "23" -> ["23"]
+        "---" -> []
+    """
+    if not port_str or port_str.strip() == "---":
+        return []
+
+    ports = []
+    segments = port_str.split(",")
+
+    for segment in segments:
+        segment = segment.strip()
+        if not segment or segment == "---":
+            continue
+
+        # Check if it's a range (contains hyphen)
+        if "-" in segment:
+            # Handle LAG ranges (e.g., "lag1-8")
+            if segment.lower().startswith("lag"):
+                # Extract the numeric parts
+                parts = segment.split("-")
+                prefix = parts[0].rstrip("0123456789")  # "lag"
+                start_num = int(parts[0][len(prefix) :])  # Extract number from "lag1"
+                end_num = int(parts[1])
+
+                for i in range(start_num, end_num + 1):
+                    ports.append(f"{prefix}{i}")
+            else:
+                # Handle numeric ranges (e.g., "1-24")
+                start, end = segment.split("-")
+                for i in range(int(start), int(end) + 1):
+                    ports.append(str(i))
+        else:
+            # Single port
+            ports.append(segment)
+
+    return ports
+
+
 def parse_version(output: str) -> Dict[str, str]:
     """Parse 'show version' output."""
     data = {}
@@ -36,9 +81,9 @@ def parse_vlan(output: str) -> List[Dict[str, str]]:
                 "name": parts[1],
             }
             if len(parts) > 2:
-                vlan["untagged_ports"] = parts[2]
+                vlan["untagged_ports"] = expand_port_range(parts[2])
             if len(parts) > 3:
-                vlan["tagged_ports"] = parts[3]
+                vlan["tagged_ports"] = expand_port_range(parts[3])
             if len(parts) > 4:
                 vlan["type"] = parts[4]
             vlans.append(vlan)
