@@ -108,3 +108,53 @@ def test_handle_args_json_output(monkeypatch, capsys):
     assert '"Key2": "Value2"' in captured.out
     assert "{" in captured.out
     assert "}" in captured.out
+
+
+def test_handle_args_interfaces_iterates_through_ports(monkeypatch, capsys):
+    """Test that interfaces command iterates through port IDs until invalid."""
+
+    # Track which commands are executed
+    executed_commands = []
+
+    class CustomFakeSession:
+        def __init__(self):
+            self.executed = []
+
+        def execute_command(self, *, command: str):
+            executed_commands.append(command)
+            if "show interface 1" in command:
+                return "GigabitEthernet1 is up"
+            elif "show interface 2" in command:
+                return "GigabitEthernet2 is down"
+            elif "show interface 3" in command:
+                return "Invalid port id"
+            else:
+                return "Invalid port id"
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+    monkeypatch.setattr(commands, "ZyxelSession", lambda *a, **k: CustomFakeSession())
+    monkeypatch.setattr(commands, "resolve_password", lambda *a, **k: "pw")
+
+    args = make_args("interfaces")
+
+    out = commands.handle_args(args=args)
+
+    # Should have called show interface 1, 2, and 3
+    assert "show interface 1" in executed_commands
+    assert "show interface 2" in executed_commands
+    assert "show interface 3" in executed_commands
+
+    # Output should contain both interface outputs
+    assert out is not None
+    assert "GigabitEthernet1 is up" in out
+    assert "GigabitEthernet2 is down" in out
+
+    # Should have printed to stdout
+    captured = capsys.readouterr()
+    assert "Interface 1" in captured.out
+    assert "Interface 2" in captured.out

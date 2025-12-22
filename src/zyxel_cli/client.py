@@ -10,7 +10,7 @@ import paramiko
 
 from .consts import ZYXEL_SLEEP_BETWEEN_COMMANDS
 
-logger = logging.getLogger("zyxel_cli")
+LOGGER = logging.getLogger("zyxel_cli")
 
 
 class ZyxelSession:
@@ -55,7 +55,7 @@ class ZyxelSession:
             shell.recv(4096)
 
         # Send newline to get prompt
-        logger.debug(
+        LOGGER.debug(
             "Sending initial newline to get prompt", extra={"host": self.host, "command": command}
         )
 
@@ -67,7 +67,7 @@ class ZyxelSession:
             shell.recv(4096)
 
         # Send the actual command (send bytes to satisfy stubs)
-        logger.debug(f"Sending command: {command}", extra={"host": self.host, "command": command})
+        LOGGER.debug(f"Sending command: {command}", extra={"host": self.host, "command": command})
         shell.send(f"{command}\n".encode("utf-8"))
         time.sleep(ZYXEL_SLEEP_BETWEEN_COMMANDS)
 
@@ -84,13 +84,13 @@ class ZyxelSession:
                 idle_count = 0  # Reset idle counter when data received
 
                 if "--More--" in chunk:
-                    logger.debug(
+                    LOGGER.debug(
                         "Detected --More-- prompt, sending space",
                         extra={"host": self.host, "command": command},
                     )
                     shell.send(b" ")
 
-                logger.debug(
+                LOGGER.debug(
                     "Current output chunk received",
                     extra={"host": self.host, "command": command, "output_chunk": chunk},
                 )
@@ -99,14 +99,14 @@ class ZyxelSession:
                 idle_count += 1
 
         # Send exit
-        logger.debug("Sending exit!", extra={"host": self.host, "command": command})
+        LOGGER.debug("Sending exit!", extra={"host": self.host, "command": command})
         shell.send(b"exit\n")
 
         shell.close()
 
         clean_output = self._clean_output(output)
 
-        logger.debug(
+        LOGGER.debug(
             "Returning cleaned output",
             extra={"host": self.host, "command": command, "output": clean_output},
         )
