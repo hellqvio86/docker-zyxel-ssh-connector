@@ -67,25 +67,42 @@ uv run zyxel-cli -H 192.168.1.1 version
 
 ### Options & Parameters
 
-When using the `Makefile` (both local and Docker), you can pass these parameters:
+When using the `Makefile` (both for local CLI and Docker), you can pass parameters using the `name=value` syntax:
 
-- `host`: **Required.** IP or hostname of the switch.
-- `user`: SSH username (default: `admin`).
-- `password`: SSH password (optional).
-- `args`: Extra flags passed to the CLI (e.g., `args=--output-json` or `args=--debug`).
+| Parameter | Used in | Description |
+|-----------|---------|-------------|
+| `host`    | **Required** | IP or hostname of the switch. |
+| `user`    | Optional | SSH username (default: `admin`). |
+| `password`| Optional | SSH password (will prompt if not provided). |
+| `cmd`     | Optional | Raw command to execute (used with `cli-exec`). |
+| `args`    | Optional | Extra flags passed to the `zyxel-cli` (e.g., `args="--output-json --debug"`). |
 
 #### Supported CLI Arguments
 
-These can be passed via the `args=` parameter:
+These can be passed via the `args=` parameter in the Makefile, or directly to the `zyxel-cli` binary if running in a virtual environment:
 
-| Short | Long | Description |
-|---|---|---|
-| `-H` | `--host` | Hostname or IP (handled by `host=` in Makefile) |
-| `-u` | `--user` | Username (handled by `user=` in Makefile) |
-| `-p` | `--password` | Password (handled by `password=` in Makefile) |
-| `-P` | `--port` | SSH port (default: 22) |
-| | `--debug` | Enable detailed execution logging to `zyxel_ssh_debug.log` |
-| | `--output-json` | Output command results in structured JSON format |
+| Flag | Description |
+|---|---|
+| `-H`, `--host` | **Required.** Hostname or IP of the switch. |
+| `-u`, `--user` | SSH username (default: `admin`). |
+| `-p`, `--password` | SSH password (will prompt if not provided). |
+| `--port` | SSH port (default: 22). |
+| `--debug` | Enable detailed JSON execution logging to `zyxel_ssh_debug.log`. |
+| `--output-json` | Output command results in structured JSON format. |
+
+#### Available Commands (Subcommands)
+
+These are the subcommands you can execute (e.g., `zyxel-cli [options] <command>`):
+
+| Command | Description |
+|---|---|
+| `version` | Display switch firmware version and model info. |
+| `config` | Show the complete running configuration. |
+| `interfaces` | Show detailed status and statistics for ALL ports (iterates through ports automatically). |
+| `vlans` | Show the current VLAN configuration. |
+| `mac-table` | Show the MAC address table. |
+| `exec <cmd>`| Execute a custom raw command on the switch. |
+| `interactive` | Start an interactive SSH shell session. |
 
 ## Installation & Setup
 
@@ -307,6 +324,19 @@ docker-zyxel-ssh-connector/
 | `make show-mac-table` | Show MAC table | `make show-mac-table host=192.168.1.1` |
 | `make connect` | Interactive SSH | `make connect host=192.168.1.1` |
 | `make run` | Bash shell | `make run` |
+
+### Using Arguments with Makefile
+You can pass any global CLI flag using the `args=` parameter:
+```bash
+# Get JSON output via Docker
+make show-version host=192.168.1.1 args="--output-json"
+
+# Enable debug logging
+make show-interfaces host=192.168.1.1 args="--debug"
+
+# Combine multiple arguments
+make show-vlans host=192.168.1.1 args="--output-json --debug"
+```
 
 ### Testing & Quality
 | Command | Description |
