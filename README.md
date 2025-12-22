@@ -65,6 +65,28 @@ uv run zyxel-cli -H 192.168.1.1 version
 
 **Note**: The local CLI (Option 3) may require legacy SSH support on your host. If you have connection issues, use the Docker method (Option 1).
 
+### Options & Parameters
+
+When using the `Makefile` (both local and Docker), you can pass these parameters:
+
+- `host`: **Required.** IP or hostname of the switch.
+- `user`: SSH username (default: `admin`).
+- `password`: SSH password (optional).
+- `args`: Extra flags passed to the CLI (e.g., `args=--output-json` or `args=--debug`).
+
+#### Supported CLI Arguments
+
+These can be passed via the `args=` parameter:
+
+| Short | Long | Description |
+|---|---|---|
+| `-H` | `--host` | Hostname or IP (handled by `host=` in Makefile) |
+| `-u` | `--user` | Username (handled by `user=` in Makefile) |
+| `-p` | `--password` | Password (handled by `password=` in Makefile) |
+| `-P` | `--port` | SSH port (default: 22) |
+| | `--debug` | Enable detailed execution logging to `zyxel_ssh_debug.log` |
+| | `--output-json` | Output command results in structured JSON format |
+
 ## Installation & Setup
 
 ### Prerequisites

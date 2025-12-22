@@ -56,47 +56,47 @@ python-validate:
 cli-version:
 	@if [ -z "$(host)" ]; then \
 		echo "Error: host parameter required"; \
-		echo "Usage: make cli-version host=192.168.1.1 [user=admin] [password=secret]"; \
+		echo "Usage: make cli-version host=192.168.1.1 [user=admin] [password=secret] [args=--output-json]"; \
 		exit 1; \
 	fi
 	@echo "Getting version from $(host)..."
-	uv run zyxel-cli -H $(host) -u $(if $(user),$(user),admin) $(if $(password),-p $(password),) version
+	uv run zyxel-cli -H $(host) -u $(if $(user),$(user),admin) $(if $(password),-p $(password),) $(args) version
 
 cli-config:
 	@if [ -z "$(host)" ]; then \
 		echo "Error: host parameter required"; \
-		echo "Usage: make cli-config host=192.168.1.1 [user=admin] [password=secret]"; \
+		echo "Usage: make cli-config host=192.168.1.1 [user=admin] [password=secret] [args=--output-json]"; \
 		exit 1; \
 	fi
 	@echo "Getting configuration from $(host)..."
-	uv run zyxel-cli -H $(host) -u $(if $(user),$(user),admin) $(if $(password),-p $(password),) config
+	uv run zyxel-cli -H $(host) -u $(if $(user),$(user),admin) $(if $(password),-p $(password),) $(args) config
 
 cli-interfaces:
 	@if [ -z "$(host)" ]; then \
 		echo "Error: host parameter required"; \
-		echo "Usage: make cli-interfaces host=192.168.1.1 [user=admin] [password=secret]"; \
+		echo "Usage: make cli-interfaces host=192.168.1.1 [user=admin] [password=secret] [args=--output-json]"; \
 		exit 1; \
 	fi
 	@echo "Getting interface status from $(host)..."
-	uv run zyxel-cli -H $(host) -u $(if $(user),$(user),admin) $(if $(password),-p $(password),) interfaces
+	uv run zyxel-cli -H $(host) -u $(if $(user),$(user),admin) $(if $(password),-p $(password),) $(args) interfaces
 
 cli-vlans:
 	@if [ -z "$(host)" ]; then \
 		echo "Error: host parameter required"; \
-		echo "Usage: make cli-vlans host=192.168.1.1 [user=admin] [password=secret]"; \
+		echo "Usage: make cli-vlans host=192.168.1.1 [user=admin] [password=secret] [args=--output-json]"; \
 		exit 1; \
 	fi
 	@echo "Getting VLAN configuration from $(host)..."
-	uv run zyxel-cli -H $(host) -u $(if $(user),$(user),admin) $(if $(password),-p $(password),) vlans
+	uv run zyxel-cli -H $(host) -u $(if $(user),$(user),admin) $(if $(password),-p $(password),) $(args) vlans
 
 cli-mac-table:
 	@if [ -z "$(host)" ]; then \
 		echo "Error: host parameter required"; \
-		echo "Usage: make cli-mac-table host=192.168.1.1 [user=admin] [password=secret]"; \
+		echo "Usage: make cli-mac-table host=192.168.1.1 [user=admin] [password=secret] [args=--output-json]"; \
 		exit 1; \
 	fi
 	@echo "Getting MAC address table from $(host)..."
-	uv run zyxel-cli -H $(host) -u $(if $(user),$(user),admin) $(if $(password),-p $(password),) mac-table
+	uv run zyxel-cli -H $(host) -u $(if $(user),$(user),admin) $(if $(password),-p $(password),) $(args) mac-table
 
 
 cli-connect:
@@ -111,16 +111,16 @@ cli-connect:
 cli-exec:
 	@if [ -z "$(host)" ]; then \
 		echo "Error: host parameter required"; \
-		echo "Usage: make cli-exec host=192.168.1.1 cmd='show ip' [user=admin] [password=secret]"; \
+		echo "Usage: make cli-exec host=192.168.1.1 cmd='show ip' [user=admin] [password=secret] [args=--debug]"; \
 		exit 1; \
 	fi
 	@if [ -z "$(cmd)" ]; then \
 		echo "Error: cmd parameter required"; \
-		echo "Usage: make cli-exec host=192.168.1.1 cmd='show ip' [user=admin] [password=secret]"; \
+		echo "Usage: make cli-exec host=192.168.1.1 cmd='show ip' [user=admin] [password=secret] [args=--debug]"; \
 		exit 1; \
 	fi
 	@echo "Executing command on $(host)..."
-	uv run zyxel-cli -H $(host) -u $(if $(user),$(user),admin) $(if $(password),-p $(password),) exec "$(cmd)"
+	uv run zyxel-cli -H $(host) -u $(if $(user),$(user),admin) $(if $(password),-p $(password),) $(args) exec "$(cmd)"
 
 shell:
 	@echo "Starting a bash shell on zyxel-ssh-connector"
@@ -135,27 +135,26 @@ build:
 	@echo "Building Docker container (multi-stage builder + final)..."
 	@$(MAKE) docker-final
 
-docker-build:
-	@echo "Building builder image (zyxel-builder)..."
-	podman build -t zyxel-builder -f Dockerfile.build .
+docker-build: docker-final docker-final-bash
 
-docker-final: docker-build
+# Python-based CLI container (multi-stage)
+docker-final:
 	@echo "Building final runtime image (zyxel-ssh-connector:$(VERSION))..."
-	podman build -t zyxel-ssh-connector:$(VERSION) -t zyxel-ssh-connector:latest -f Dockerfile .
+	podman build -t zyxel-ssh-connector:$(VERSION) -t zyxel-ssh-connector:latest --build-arg VERSION=$(VERSION) -f Dockerfile .
 
-
-docker-final-bash: docker-build
+# Bash-based legacy SSH container
+docker-final-bash:
 	@echo "Building final runtime image (zyxel-ssh-bash:$(VERSION))..."
 	podman build -t zyxel-ssh-bash:$(VERSION) -t zyxel-ssh-bash:latest --build-arg VERSION=$(VERSION) -f Dockerfile.bash.zyxel .
 
 docker-clean:
-	@echo "Removing images zyxel-builder and zyxel-ssh-connector..."
-	-podman rmi zyxel-ssh-connector || true
-	-podman rmi zyxel-builder || true
+	@echo "Removing zyxel-ssh-connector and zyxel-ssh-bash images..."
+	-podman rmi zyxel-ssh-connector:latest zyxel-ssh-connector:$(VERSION) || true
+	-podman rmi zyxel-ssh-bash:latest zyxel-ssh-bash:$(VERSION) || true
 
 run:
 	@echo "Running zyxel-ssh-connector container..."
-	podman run -it --rm --net=host zyxel-ssh-connector bash
+	podman run -it --rm --net=host --entrypoint bash zyxel-ssh-connector
 
 clean:
 	@echo "Removing Docker container..."
@@ -169,52 +168,52 @@ connect:
 		exit 1; \
 	fi
 	@echo "Connecting to $(host) via Docker..."
-	podman run -it --rm --net=host zyxel-ssh-connector zyxel-cli -H $(host) -u $(if $(user),$(user),admin) $(if $(password),-p $(password),) interactive
+	podman run -it --rm --net=host zyxel-ssh-connector -H $(host) -u $(if $(user),$(user),admin) $(if $(password),-p $(password),) interactive
 
 show-version:
 	@if [ -z "$(host)" ]; then \
 		echo "Error: host parameter required"; \
-		echo "Usage: make show-version host=192.168.1.1 [user=admin] [password=secret]"; \
+		echo "Usage: make show-version host=192.168.1.1 [user=admin] [password=secret] [args=--output-json]"; \
 		exit 1; \
 	fi
 	@echo "Getting version from $(host) via Docker..."
-	@podman run -it --rm --net=host zyxel-ssh-connector zyxel-cli -H $(host) -u $(if $(user),$(user),admin) $(if $(password),-p $(password),) version
+	@podman run -it --rm --net=host zyxel-ssh-connector -H $(host) -u $(if $(user),$(user),admin) $(if $(password),-p $(password),) $(args) version
 
 show-config:
 	@if [ -z "$(host)" ]; then \
 		echo "Error: host parameter required"; \
-		echo "Usage: make show-config host=192.168.1.1 [user=admin] [password=secret]"; \
+		echo "Usage: make show-config host=192.168.1.1 [user=admin] [password=secret] [args=--output-json]"; \
 		exit 1; \
 	fi
 	@echo "Getting configuration from $(host) via Docker..."
-	@podman run -it --rm --net=host zyxel-ssh-connector zyxel-cli -H $(host) -u $(if $(user),$(user),admin) $(if $(password),-p $(password),) config
+	@podman run -it --rm --net=host zyxel-ssh-connector -H $(host) -u $(if $(user),$(user),admin) $(if $(password),-p $(password),) $(args) config
 
 show-interfaces:
 	@if [ -z "$(host)" ]; then \
 		echo "Error: host parameter required"; \
-		echo "Usage: make show-interfaces host=192.168.1.1 [user=admin] [password=secret]"; \
+		echo "Usage: make show-interfaces host=192.168.1.1 [user=admin] [password=secret] [args=--output-json]"; \
 		exit 1; \
 	fi
 	@echo "Getting interface status from $(host) via Docker..."
-	@podman run -it --rm --net=host zyxel-ssh-connector zyxel-cli -H $(host) -u $(if $(user),$(user),admin) $(if $(password),-p $(password),) interfaces
+	@podman run -it --rm --net=host zyxel-ssh-connector -H $(host) -u $(if $(user),$(user),admin) $(if $(password),-p $(password),) $(args) interfaces
 
 show-vlans:
 	@if [ -z "$(host)" ]; then \
 		echo "Error: host parameter required"; \
-		echo "Usage: make show-vlans host=192.168.1.1 [user=admin] [password=secret]"; \
+		echo "Usage: make show-vlans host=192.168.1.1 [user=admin] [password=secret] [args=--output-json]"; \
 		exit 1; \
 	fi
 	@echo "Getting VLAN configuration from $(host) via Docker..."
-	@podman run -it --rm --net=host zyxel-ssh-connector zyxel-cli -H $(host) -u $(if $(user),$(user),admin) $(if $(password),-p $(password),) vlans
+	@podman run -it --rm --net=host zyxel-ssh-connector -H $(host) -u $(if $(user),$(user),admin) $(if $(password),-p $(password),) $(args) vlans
 
 show-mac-table:
 	@if [ -z "$(host)" ]; then \
 		echo "Error: host parameter required"; \
-		echo "Usage: make show-mac-table host=192.168.1.1 [user=admin] [password=secret]"; \
+		echo "Usage: make show-mac-table host=192.168.1.1 [user=admin] [password=secret] [args=--output-json]"; \
 		exit 1; \
 	fi
 	@echo "Getting MAC address table from $(host) via Docker..."
-	@podman run -it --rm --net=host zyxel-ssh-connector zyxel-cli -H $(host) -u $(if $(user),$(user),admin) $(if $(password),-p $(password),) mac-table
+	@podman run -it --rm --net=host zyxel-ssh-connector -H $(host) -u $(if $(user),$(user),admin) $(if $(password),-p $(password),) $(args) mac-table
 
 
 # Help
@@ -240,7 +239,7 @@ help:
 	@echo "  make cli-exec cmd='...' - Execute custom command"
 	@echo ""
 	@echo "=== Docker CLI (recommended for legacy switches) ==="
-	@echo "  Usage: make <command> host=<IP> [user=admin] [password=secret]"
+	@echo "  Usage: make <command> host=<IP> [user=admin] [password=secret] [args=--output-json]"
 	@echo ""
 	@echo "  make build              - Build Docker container (do this first!)"
 	@echo "  make show-version       - Show switch version"
