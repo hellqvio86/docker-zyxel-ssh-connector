@@ -1,4 +1,4 @@
-.PHONY: build run connect clean python-build python-install python-clean python-test python-test-verbose python-test-cov python-lint python-lint-fix python-format python-format-check python-validate show-version show-config show-interfaces show-vlans show-mac-table cli-version cli-config cli-interfaces cli-vlans cli-mac-table cli-connect cli-exec help
+.PHONY: build run connect clean python-build python-install python-clean python-test python-test-verbose python-test-cov python-lint python-lint-fix python-format python-format-check python-validate show-version show-config show-interfaces show-vlans show-mac-table cli-version cli-config cli-interfaces cli-vlans cli-mac-table cli-connect cli-exec help shell docker-build docker-final docker-clean docker-final-bash
 
 # Python development commands
 python-build:
@@ -122,12 +122,15 @@ cli-exec:
 	@echo "Executing command on $(host)..."
 	uv run zyxel-cli -H $(host) -u $(if $(user),$(user),admin) $(if $(password),-p $(password),) exec "$(cmd)"
 
+shell:
+	@echo "Starting a bash shell on zyxel-ssh-connector"
+	podman run --rm -it localhost/zyxel-ssh-connector:latest /bin/bash
+
 # Docker commands
 build:
 	@echo "Building Docker container (multi-stage builder + final)..."
 	@$(MAKE) docker-final
 
-.PHONY: docker-build docker-final docker-clean
 docker-build:
 	@echo "Building builder image (zyxel-builder)..."
 	podman build -t zyxel-builder -f Dockerfile.build .
@@ -135,6 +138,11 @@ docker-build:
 docker-final: docker-build
 	@echo "Building final runtime image (zyxel-ssh-connector)..."
 	podman build -t zyxel-ssh-connector -f Dockerfile .
+
+
+docker-final-bash: docker-build
+	@echo "Building final runtime image (zyxel-ssh-connector)..."
+	podman build -t zyxel-ssh-connector -f Dockerfile.bash.zyxel .
 
 docker-clean:
 	@echo "Removing images zyxel-builder and zyxel-ssh-connector..."
