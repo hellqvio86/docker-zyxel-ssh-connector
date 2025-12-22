@@ -323,13 +323,6 @@ This will automatically:
 3. Push to Docker Hub with appropriate version tags
 4. Create a GitHub release
 
-### Version Numbering
-
-We follow [Semantic Versioning](https://semver.org/):
-- **MAJOR**: Incompatible changes (e.g., base image change)
-- **MINOR**: New features, backwards compatible
-- **PATCH**: Bug fixes, backwards compatible
-
 ## Troubleshooting
 
 ### Local CLI Connection Issues
