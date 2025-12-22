@@ -58,7 +58,7 @@ jobs:
                        -f Dockerfile.bash.zyxel .
 
       - name: Push docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         with:
           context: .
