@@ -1,0 +1,44 @@
+[
+    {
+        "vid": "1",
+        "name": "default",
+        "untagged_ports": "1-24,lag1-8",
+        "tagged_ports": "---",
+        "type": "Default"
+    },
+    {
+        "vid": "2",
+        "name": "fooobaz",
+        "untagged_ports": "---",
+        "tagged_ports": "23",
+        "type": "Static"
+    },
+    {
+        "vid": "3",
+        "name": "foooo",
+        "untagged_ports": "---",
+        "tagged_ports": "8,23",
+        "type": "Static"
+    },
+    {
+        "vid": "4",
+        "name": "foo",
+        "untagged_ports": "---",
+        "tagged_ports": "---",
+        "type": "Static"
+    },
+    {
+        "vid": "5",
+        "name": "foobar",
+        "untagged_ports": "---",
+        "tagged_ports": "23",
+        "type": "Static"
+    },
+    {
+        "vid": "7",
+        "name": "foobarbaz",
+        "untagged_ports": "---",
+        "tagged_ports": "23",
+        "type": "Static"
+    }
+]
