@@ -126,6 +126,10 @@ shell:
 	@echo "Starting a bash shell on zyxel-ssh-connector"
 	podman run --rm -it localhost/zyxel-ssh-connector:latest /bin/bash
 
+bash-zyxel:
+	@echo "Starting a bash shell on zyxel-ssh-bash"
+	podman run --rm -it localhost/zyxel-ssh-bash:latest /bin/bash
+
 # Docker commands
 build:
 	@echo "Building Docker container (multi-stage builder + final)..."
@@ -141,8 +145,8 @@ docker-final: docker-build
 
 
 docker-final-bash: docker-build
-	@echo "Building final runtime image (zyxel-ssh-connector)..."
-	podman build -t zyxel-ssh-connector -f Dockerfile.bash.zyxel .
+	@echo "Building final runtime image (zyxel-ssh-bash)..."
+	podman build -t zyxel-ssh-bash -f Dockerfile.bash.zyxel .
 
 docker-clean:
 	@echo "Removing images zyxel-builder and zyxel-ssh-connector..."
