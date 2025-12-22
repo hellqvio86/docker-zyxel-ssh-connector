@@ -1,8 +1,5 @@
 import argparse
-from io import StringIO
 from typing import Optional
-
-import pytest
 
 from zyxel_cli import commands
 

@@ -1,7 +1,5 @@
 """Tests for interface_utils module."""
 
-import pytest
-
 from zyxel_cli.interface_utils import (
     collect_all_interfaces,
     is_invalid_port_response,

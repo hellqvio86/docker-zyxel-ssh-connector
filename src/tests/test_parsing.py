@@ -13,7 +13,7 @@ def test_parse_vlan():
   VID  |     VLAN Name    |        Untagged Ports        |        Tagged Ports          |  Type   
 -------+------------------+------------------------------+------------------------------+---------
      1 |          default |                  1-24,lag1-8 |                          --- | Default 
-     2 |            ALARM |                          --- |                           23 | Static 
+     2 |            FOOBAR |                          --- |                           23 | Static 
     """
     vlans = parsing.parse_vlan(output)
     assert len(vlans) == 2
@@ -26,7 +26,7 @@ def test_parse_vlan():
     assert vlans[0]["type"] == "Default"
 
     assert vlans[1]["vid"] == "2"
-    assert vlans[1]["name"] == "ALARM"
+    assert vlans[1]["name"] == "FOOBAR"
     assert vlans[1]["untagged_ports"] == []
     assert vlans[1]["tagged_ports"] == ["23"]
 

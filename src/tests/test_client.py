@@ -1,7 +1,5 @@
 import time
 
-import pytest
-
 from zyxel_cli.client import ZyxelSession
 
 

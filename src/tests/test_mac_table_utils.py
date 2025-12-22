@@ -1,7 +1,5 @@
 """Tests for mac_table_utils module."""
 
-import pytest
-
 from zyxel_cli.mac_table_utils import parse_mac_table_output
 
 

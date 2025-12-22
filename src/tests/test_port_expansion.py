@@ -1,4 +1,5 @@
 """Tests for port range expansion utility."""
+
 from zyxel_cli.parsing import expand_port_range
 
 
