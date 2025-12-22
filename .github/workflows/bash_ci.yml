@@ -5,8 +5,25 @@ on:
   pull_request:
 
 jobs:
-  docker-build:
+  check-version:
     runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    outputs:
+      changed: ${{ steps.check.outputs.changed }}
+      version: ${{ steps.check.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - id: check
+        uses: ./.github/actions/check-version-change
+
+  docker-build:
+    needs: check-version
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'push' &&
+      (github.ref != 'refs/heads/main' || needs.check-version.outputs.changed == 'true')
     permissions:
       contents: write
 
@@ -24,29 +41,19 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Get version from file
-        id: get_version
-        run: |
-          # Use a VERSION file or fallback to "latest"
-          if [ -f VERSION ]; then
-            echo "version=$(cat VERSION)" >> $GITHUB_OUTPUT
-          else
-            echo "version=latest" >> $GITHUB_OUTPUT
-          fi
-
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: ${{ secrets.DOCKER_USERNAME }}/zyxel-ssh-bash
           tags: |
-            type=raw,value=${{ steps.get_version.outputs.version }}
+            type=raw,value=${{ needs.check-version.outputs.version }}
             type=raw,value=latest,enable={{is_default_branch}}
             type=sha,prefix=sha-
 
       - name: Build docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/zyxel-ssh-bash:${{ steps.get_version.outputs.version }} \
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/zyxel-ssh-bash:${{ needs.check-version.outputs.version }} \
                        -f Dockerfile.bash.zyxel .
 
       - name: Push docker image

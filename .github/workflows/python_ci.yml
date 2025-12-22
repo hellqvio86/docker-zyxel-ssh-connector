@@ -54,10 +54,25 @@ jobs:
             git push
           fi
 
-  docker-build:
-    needs: validate
+  check-version:
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
+    outputs:
+      changed: ${{ steps.check.outputs.changed }}
+      version: ${{ steps.check.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - id: check
+        uses: ./.github/actions/check-version-change
+
+  docker-build:
+    needs: [validate, check-version]
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'push' &&
+      (github.ref != 'refs/heads/main' || needs.check-version.outputs.changed == 'true')
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -72,28 +87,13 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Get version from pyproject.toml
-        id: get_version
-        run: |
-          PYV=$(python - <<'PY'
-          import re,sys
-          try:
-              text=open('pyproject.toml','r',encoding='utf-8').read()
-              m=re.search(r'^version\s*=\s*"([^"]+)"', text, flags=re.M)
-              if m: print(m.group(1))
-              else: sys.exit(1)
-          except Exception: sys.exit(1)
-          PY
-          )
-          echo "version=$PYV" >> $GITHUB_OUTPUT
-
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: ${{ secrets.DOCKER_USERNAME }}/zyxel-ssh-connector
           tags: |
-            type=raw,value=${{ steps.get_version.outputs.version }}
+            type=raw,value=${{ needs.check-version.outputs.version }}
             type=raw,value=latest,enable={{is_default_branch}}
             type=sha,prefix=sha-
       
@@ -117,7 +117,7 @@ jobs:
 
   create-release:
     name: Create Draft Release
-    needs: docker-build
+    needs: [docker-build, check-version]
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
@@ -129,24 +129,18 @@ jobs:
         with:
           fetch-depth: 2
 
-      - name: Check if version changed
-        id: version
-        uses: ./.github/actions/check-version-change
-
       - name: Create Git tag
-        if: steps.version.outputs.changed == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag -a "v${{ steps.version.outputs.version }}" -m "Release v${{ steps.version.outputs.version }}"
-          git push origin "v${{ steps.version.outputs.version }}"
+          git tag -a "v${{ needs.check-version.outputs.version }}" -m "Release v${{ needs.check-version.outputs.version }}"
+          git push origin "v${{ needs.check-version.outputs.version }}"
 
       - name: Create draft release
-        if: steps.version.outputs.changed == 'true'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ steps.version.outputs.version }}
-          name: Release v${{ steps.version.outputs.version }}
+          tag_name: v${{ needs.check-version.outputs.version }}
+          name: Release v${{ needs.check-version.outputs.version }}
           draft: true
           prerelease: false
           generate_release_notes: true
