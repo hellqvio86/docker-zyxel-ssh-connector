@@ -22,41 +22,54 @@ Modern SSH clients (OpenSSH 8.8+) have deprecated older algorithms like `ssh-rsa
 
 ## Quick Start
 
-### Option 1: Local Python CLI (Fast Development)
+### Option 1: Using Pre-built Docker Containers (Recommended)
+
+The fastest way to get started without installing anything or cloning the repo.
 
 ```bash
-# Set up the environment
-make python-build
-source .venv/bin/activate
-make python-install
+# Get switch version
+docker run --rm --net=host hellqvio/zyxel-ssh-connector:latest zyxel-cli -H 192.168.1.1 version
 
-# Test it works
-make python-test
+# Start an interactive session
+docker run -it --rm --net=host hellqvio/zyxel-ssh-connector:latest zyxel-cli -H 192.168.1.1 interactive
 
-# Use the CLI (may require legacy SSH support on your system)
-make cli-version host=192.168.1.1
-make cli-connect host=192.168.1.1
+# Or use the minimal bash-only container
+docker run -it --rm --net=host hellqvio/zyxel-ssh-bash:latest
 ```
 
-**Note**: The local CLI may not work on modern systems without legacy SSH. If you get connection errors, use the Docker method below.
+### Option 2: Local Docker Development
 
-### Option 2: Docker Container (Universal Compatibility)
+Best for active development or if you need to build the containers locally:
 
 ```bash
-# Build the runtime container (two-stage: builder then final)
-# This builds a builder image and then the final minimal runtime image
-make docker-final
+# Build the runtime container
+make build
 
-# Use it
+# Use local build via Makefile
 make show-version host=192.168.1.1
 make connect host=192.168.1.1
 ```
+
+### Option 3: Local Python CLI
+
+Best for developers contributing to the code.
+
+```bash
+# Set up environment and install
+make python-build
+make python-install
+
+# Use the CLI directly
+uv run zyxel-cli -H 192.168.1.1 version
+```
+
+**Note**: The local CLI (Option 3) may require legacy SSH support on your host. If you have connection issues, use the Docker method (Option 1).
 
 ## Installation & Setup
 
 ### Prerequisites
 
-- Python 3.10+ (for local development)
+- Python 3.14+ (for local development)
 - [uv](https://github.com/astral-sh/uv) - Python package installer
 - Docker or Podman (for containerized usage)
 
@@ -297,33 +310,6 @@ This tool should work with any legacy network equipment requiring older SSH algo
 - Zyxel XGS series switches
 - Zyxel routers and firewalls
 - Other network equipment with OpenSSH 6.x or older
-
-## Version Tags (Docker Hub)
-
-- `latest` - Latest stable release from main branch
-- `1.0.0` - Specific version releases
-- `1.0` - Latest patch version of 1.0.x
-- `1` - Latest minor version of 1.x.x
-
-## Creating a Release
-
-Maintainers can create a new release by tagging a commit:
-
-```bash
-# Ensure you're on main and up to date
-git checkout main
-git pull
-
-# Create and push a version tag
-git tag v1.0.0
-git push origin v1.0.0
-```
-
-This will automatically:
-1. Trigger the GitHub Actions workflow
-2. Build the Docker image
-3. Push to Docker Hub with appropriate version tags
-4. Create a GitHub release
 
 ## Troubleshooting
 
