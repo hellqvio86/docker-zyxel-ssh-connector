@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Union
 
 
 def expand_port_range(port_str: str) -> List[str]:
@@ -58,7 +58,7 @@ def parse_version(output: str) -> Dict[str, str]:
     return data
 
 
-def parse_vlan(output: str) -> List[Dict[str, str]]:
+def parse_vlan(output: str) -> List[Dict[str, Union[str, List[str]]]]:
     """Parse 'show vlan' output."""
     vlans = []
     lines = output.splitlines()
@@ -73,10 +73,9 @@ def parse_vlan(output: str) -> List[Dict[str, str]]:
         if line.startswith("-") or not line.strip():
             continue
 
-        # Expected format: VID | Name | Untagged | Tagged | Type
         parts = [p.strip() for p in line.split("|")]
         if len(parts) >= 2:
-            vlan = {
+            vlan: Dict[str, Union[str, List[str]]] = {
                 "vid": parts[0],
                 "name": parts[1],
             }
