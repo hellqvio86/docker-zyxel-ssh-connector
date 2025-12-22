@@ -52,8 +52,9 @@ def handle_args(*, args: argparse.Namespace) -> Optional[str]:
 
     Returns output string for non-interactive commands, or None for interactive.
     """
-    from .logging_config import setup_logging
     import json
+
+    from .logging_config import setup_logging
     from .parsing import parse_output
 
     setup_logging(debug=args.debug)

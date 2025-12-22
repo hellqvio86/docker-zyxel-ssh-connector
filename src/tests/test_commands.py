@@ -1,5 +1,6 @@
 import argparse
 from io import StringIO
+from typing import Optional
 
 import pytest
 
@@ -10,9 +11,12 @@ class FakeSession:
     def __init__(self):
         self.executed = []
         self.interactive_called = False
+        self.next_output: Optional[str] = None
 
     def execute_command(self, *, command: str):
         self.executed.append(command)
+        if self.next_output is not None:
+            return self.next_output
         return f"OUT: {command}"
 
     def interactive(self):
@@ -92,7 +96,7 @@ def test_handle_args_json_output(monkeypatch, capsys):
     # Command output that fits the dummy parse_version regex/logic if possible
     # or just check that it calls json.dumps on the output
     # Since parse_version splits by colon, let's provide something parseable
-    fake.execute_command = lambda command: "Key : Value\nKey2 : Value2"
+    fake.next_output = "Key : Value\nKey2 : Value2"
 
     args = make_args("version", output_json=True)
 
