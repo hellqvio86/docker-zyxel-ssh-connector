@@ -6,14 +6,14 @@ from typing import Optional
 
 from .client import ZyxelSession
 from .config import resolve_password
+from .interface_utils import collect_all_interfaces, parse_interface_output
 
-logger = logging.getLogger("zyxel_cli")
+LOGGER = logging.getLogger("zyxel_cli")
 
-# Command mapping
+# Command mapping (interfaces handled separately with iteration logic)
 COMMANDS: dict[str, str] = {
     "version": "show version",
     "config": "show running-config",
-    "interfaces": "show interface status",
     "vlans": "show vlan",
     "mac-table": "show mac address-table",
 }
@@ -65,7 +65,7 @@ def handle_args(*, args: argparse.Namespace) -> Optional[str]:
     if args.command == "exec":
         cmd_str = f"exec: {args.exec_command}"
 
-    logger.debug(f"Connecting to {args.host}", extra={"host": args.host, "command": cmd_str})
+    LOGGER.debug(f"Connecting to {args.host}", extra={"host": args.host, "command": cmd_str})
 
     with ZyxelSession(host=args.host, user=args.user, password=password, port=args.port) as session:
         if args.command == "interactive":
@@ -74,7 +74,7 @@ def handle_args(*, args: argparse.Namespace) -> Optional[str]:
         elif args.command == "exec":
             output = session.execute_command(command=args.exec_command)
             # Log output (escaping newlines could be good but raw string in JSON is handled by json.dumps)
-            logger.debug(
+            LOGGER.debug(
                 "Command result",
                 extra={"host": args.host, "command": args.exec_command, "output": output},
             )
@@ -82,7 +82,7 @@ def handle_args(*, args: argparse.Namespace) -> Optional[str]:
             if args.output_json:
                 result = parse_output(args.exec_command, output)
 
-                logger.debug(
+                LOGGER.debug(
                     "Parsed json result",
                     extra={"host": args.host, "command": args.exec_command, "output": result},
                 )
@@ -91,18 +91,62 @@ def handle_args(*, args: argparse.Namespace) -> Optional[str]:
             else:
                 print(output)
             return output
+        elif args.command == "interfaces":
+            # Special handling: iterate through all port IDs
+            LOGGER.debug(
+                "Collecting all interfaces",
+                extra={"host": args.host, "command": "interfaces"},
+            )
+
+            interfaces = collect_all_interfaces(lambda cmd: session.execute_command(command=cmd))
+
+            # Combine all outputs
+            output_parts = []
+            for port_id, port_output in interfaces:
+                output_parts.append(f"=== Interface {port_id} ===")
+                output_parts.append(port_output)
+                output_parts.append("")  # Empty line between interfaces
+
+            output = "\n".join(output_parts)
+
+            LOGGER.debug(
+                "Command result",
+                extra={"host": args.host, "command": "interfaces", "output": output},
+            )
+
+            if args.output_json:
+                # For JSON output, create a structured format with parsed data
+                result = {
+                    "interfaces": [
+                        {
+                            "port_id": port_id,
+                            "parsed": parse_interface_output(port_output),
+                            "raw_output": port_output,
+                        }
+                        for port_id, port_output in interfaces
+                    ]
+                }
+
+                LOGGER.debug(
+                    "Parsed json result",
+                    extra={"host": args.host, "command": "interfaces", "output": result},
+                )
+                print(json.dumps(result, indent=2))
+            else:
+                print(output)
+            return output
         else:
             cmd = COMMANDS.get(args.command)
             if cmd:
                 output = session.execute_command(command=cmd)
-                logger.debug(
+                LOGGER.debug(
                     "Command result", extra={"host": args.host, "command": cmd, "output": output}
                 )
 
                 if args.output_json:
                     result = parse_output(cmd, output)
 
-                    logger.debug(
+                    LOGGER.debug(
                         "Parsed json result",
                         extra={"host": args.host, "command": args.command, "output": result},
                     )

@@ -4,15 +4,6 @@ import sys
 
 from .commands import create_parser, handle_args
 
-# Command mapping
-COMMANDS: dict[str, str] = {
-    "version": "show version",
-    "config": "show running-config",
-    "interfaces": "show interface status",
-    "vlans": "show vlan",
-    "mac-table": "show mac address-table",
-}
-
 
 def main() -> None:
     parser = create_parser()
@@ -34,8 +25,8 @@ Examples:
     except KeyboardInterrupt:
         print("\nInterrupted")
         sys.exit(1)
-    except Exception as e:
-        print(f"Error: {e}", file=sys.stderr)
+    except Exception as err:
+        print(f"Error: {err}", file=sys.stderr)
         sys.exit(1)
 
 
