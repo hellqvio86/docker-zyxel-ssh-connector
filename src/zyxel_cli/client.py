@@ -1,11 +1,16 @@
 """SSH client for Zyxel switches"""
 
+import logging
 import re
 import sys
 import time
-from typing import Any, Optional
+from typing import Optional
 
 import paramiko
+
+from .consts import ZYXEL_SLEEP_BETWEEN_COMMANDS
+
+logger = logging.getLogger("zyxel_cli")
 
 
 class ZyxelSession:
@@ -43,23 +48,28 @@ class ZyxelSession:
 
         # Open an interactive shell
         shell = self.client.invoke_shell()
-        time.sleep(0.5)
+        time.sleep(ZYXEL_SLEEP_BETWEEN_COMMANDS)
 
         # Clear initial output
         if shell.recv_ready():
             shell.recv(4096)
 
         # Send newline to get prompt
+        logger.debug(
+            "Sending initial newline to get prompt", extra={"host": self.host, "command": command}
+        )
+
         shell.send(b"\n")
-        time.sleep(0.3)
+        time.sleep(ZYXEL_SLEEP_BETWEEN_COMMANDS)
 
         # Clear prompt
         if shell.recv_ready():
             shell.recv(4096)
 
         # Send the actual command (send bytes to satisfy stubs)
+        logger.debug(f"Sending command: {command}", extra={"host": self.host, "command": command})
         shell.send(f"{command}\n".encode("utf-8"))
-        time.sleep(0.5)
+        time.sleep(ZYXEL_SLEEP_BETWEEN_COMMANDS)
 
         # Collect output
         # Collect output
@@ -74,16 +84,34 @@ class ZyxelSession:
                 idle_count = 0  # Reset idle counter when data received
 
                 if "--More--" in chunk:
+                    logger.debug(
+                        "Detected --More-- prompt, sending space",
+                        extra={"host": self.host, "command": command},
+                    )
                     shell.send(b" ")
+
+                logger.debug(
+                    "Current output chunk received",
+                    extra={"host": self.host, "command": command, "output_chunk": chunk},
+                )
             else:
-                time.sleep(0.1)
+                time.sleep(ZYXEL_SLEEP_BETWEEN_COMMANDS)
                 idle_count += 1
 
         # Send exit
+        logger.debug("Sending exit!", extra={"host": self.host, "command": command})
         shell.send(b"exit\n")
+
         shell.close()
 
-        return self._clean_output(output)
+        clean_output = self._clean_output(output)
+
+        logger.debug(
+            "Returning cleaned output",
+            extra={"host": self.host, "command": command, "output": clean_output},
+        )
+
+        return clean_output
 
     def interactive(self) -> None:
         """Start an interactive SSH session"""

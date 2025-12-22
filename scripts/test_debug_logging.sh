@@ -33,12 +33,15 @@ for cmd in "${COMMANDS[@]}"; do
     echo "Testing command: $cmd"
     # Run command with --debug
     if [ -n "$PASS" ]; then
-        uv run zyxel-cli -H "$HOST" -u "$USER" -p "$PASS" --debug "$cmd"
+        uv run zyxel-cli -H "$HOST" -u "$USER" -p "$PASS" --debug --output-json "$cmd" 2>&1 | tee -a "$LOG_FILE"
     else
         # Allow password prompt or SSH key if configured (but prompt breaks automation)
         echo "Warning: No password provided, this might hang if prompt appears."
-        uv run zyxel-cli -H "$HOST" -u "$USER" --debug "$cmd"
+        uv run zyxel-cli -H "$HOST" -u "$USER" --debug "$cmd" 2>&1 | tee -a "$LOG_FILE"
     fi
+
+    # Sleep between tests
+    sleep 5
 done
 
 echo "Checking log file..."

@@ -1,10 +1,7 @@
 import json
 import logging
 import os
-import time
 from typing import Any
-
-LOG_FILE = "zyxel_ssh_debug.log"
 
 
 class JSONFormatter(logging.Formatter):
@@ -14,14 +11,16 @@ class JSONFormatter(logging.Formatter):
         log_record: dict[str, Any] = {
             "timestamp": self.formatTime(record, self.datefmt),
             "level": record.levelname,
+            "file": record.pathname,
+            "line": record.lineno,
             "message": record.getMessage(),
             "host": getattr(record, "host", "unknown"),
             "command": getattr(record, "command", "unknown"),
         }
-        
+
         if hasattr(record, "output"):
             log_record["output"] = record.output
-        
+
         if record.exc_info:
             log_record["exception"] = self.formatException(record.exc_info)
 
@@ -40,13 +39,13 @@ def setup_logging(debug: bool = False) -> None:
     logger = logging.getLogger("zyxel_cli")
     logger.setLevel(logging.DEBUG)
 
-    # File handler (append mode)
-    handler = logging.FileHandler(LOG_FILE, mode="a")
+    # Setup console logging, we will be a container
+    handler = logging.StreamHandler()
     formatter = JSONFormatter()
     handler.setFormatter(formatter)
-    
+
     # Remove existing handlers to avoid duplicates if called multiple times
     if logger.hasHandlers():
         logger.handlers.clear()
-        
+
     logger.addHandler(handler)

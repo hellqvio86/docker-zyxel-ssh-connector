@@ -1,0 +1,62 @@
+name: CI - Bash SSH Container
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  docker-build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        if: github.event_name == 'push'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Get version from file
+        id: get_version
+        run: |
+          # Use a VERSION file or fallback to "latest"
+          if [ -f VERSION ]; then
+            echo "version=$(cat VERSION)" >> $GITHUB_OUTPUT
+          else
+            echo "version=latest" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.DOCKER_USERNAME }}/zyxel-ssh-bash
+          tags: |
+            type=raw,value=${{ steps.get_version.outputs.version }}
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,prefix=sha-
+
+      - name: Build docker image
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/zyxel-ssh-bash:${{ steps.get_version.outputs.version }} \
+                       -f Dockerfile.bash.zyxel .
+
+      - name: Push docker image
+        uses: docker/build-push-action@v5
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        with:
+          context: .
+          file: ./Dockerfile.bash.zyxel
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
