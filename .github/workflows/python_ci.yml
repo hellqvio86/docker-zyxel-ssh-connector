@@ -20,7 +20,7 @@ jobs:
           fetch-depth: 0 # Need full history for pushing, though shallow with token often works, but safe choice
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
 
