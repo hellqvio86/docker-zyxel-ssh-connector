@@ -1,6 +1,7 @@
 # docker-zyxel-ssh-connector
 
 [![Docker Image](https://img.shields.io/badge/docker-zyxel--ssh--connector-blue.svg)](https://hub.docker.com/r/hellqvio/zyxel-ssh-connector)
+[![Docker Image](https://img.shields.io/badge/docker-zyxel--ssh--bash-blue.svg)](https://hub.docker.com/r/hellqvio/zyxel-ssh-bash)
 [![Latest Release](https://img.shields.io/github/v/release/hellqvio86/docker-zyxel-ssh-connector)](https://github.com/hellqvio86/docker-zyxel-ssh-connector/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE.md)
 [![Python CI](https://github.com/hellqvio86/docker-zyxel-ssh-connector/actions/workflows/python_ci.yml/badge.svg?branch=main)](https://github.com/hellqvio86/docker-zyxel-ssh-connector/actions/workflows/python_ci.yml)
