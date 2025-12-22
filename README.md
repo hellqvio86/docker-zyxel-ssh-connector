@@ -8,7 +8,7 @@
 [![Bash CI](https://github.com/hellqvio86/docker-zyxel-ssh-connector/actions/workflows/bash_ci.yml/badge.svg?branch=main)](https://github.com/hellqvio86/docker-zyxel-ssh-connector/actions/workflows/bash_ci.yml)
 [![Coverage](coverage.svg)](coverage.svg)
 [![mypy](https://img.shields.io/badge/mypy-checked-brightgreen)](https://github.com/python/mypy)
-[![python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
+[![python](https://img.shields.io/badge/python-3.14%2B-blue)](https://www.python.org/)
 
 Python CLI tool and Docker container for connecting to legacy Zyxel network equipment over SSH. This tool uses compatible SSH algorithms required by older Zyxel switches and routers.
 
