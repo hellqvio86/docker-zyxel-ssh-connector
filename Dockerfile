@@ -5,12 +5,12 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        build-essential \
-        gcc \
-        libssl-dev \
-        libffi-dev \
-        curl \
-        ca-certificates && \
+    build-essential \
+    gcc \
+    libssl-dev \
+    libffi-dev \
+    curl \
+    ca-certificates && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /src
@@ -40,6 +40,9 @@ RUN apt-get update && \
 COPY --from=builder /opt/venv /opt/venv
 
 ENV PATH="/opt/venv/bin:${PATH}"
+
+ARG VERSION=latest
+LABEL version=$VERSION
 
 WORKDIR /app
 
