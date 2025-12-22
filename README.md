@@ -3,7 +3,6 @@
 [![Docker Image](https://img.shields.io/badge/docker-zyxel--ssh--connector-blue.svg)](https://hub.docker.com/r/hellqvio/zyxel-ssh-connector)
 [![Latest Release](https://img.shields.io/github/v/release/hellqvio86/docker-zyxel-ssh-connector)](https://github.com/hellqvio86/docker-zyxel-ssh-connector/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE.md)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/hellqvio86/docker-zyxel-ssh-connector/docker-publish.yml?branch=main)](https://github.com/hellqvio86/docker-zyxel-ssh-connector/actions)
 [![Python CI](https://github.com/hellqvio86/docker-zyxel-ssh-connector/actions/workflows/python_ci.yml/badge.svg?branch=main)](https://github.com/hellqvio86/docker-zyxel-ssh-connector/actions/workflows/python_ci.yml)
 [![Bash CI](https://github.com/hellqvio86/docker-zyxel-ssh-connector/actions/workflows/bash_ci.yml/badge.svg?branch=main)](https://github.com/hellqvio86/docker-zyxel-ssh-connector/actions/workflows/bash_ci.yml)
 [![Coverage](coverage.svg)](coverage.svg)
