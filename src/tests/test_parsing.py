@@ -28,18 +28,23 @@ def test_parse_vlan():
 
 
 def test_parse_mac_table():
-    output = """
-     1  00:11:22:33:44:55  dynamic  1
-    10  AA:BB:CC:DD:EE:FF  static   2
-    invalid line
+    output = """ VID  |    MAC Address    |       Type        |   Ports        
+------+-------------------+-------------------+----------------
+    1 | 00:11:22:33:44:55 |      Dynamic      | 1 
+   10 | AA:BB:CC:DD:EE:FF |      Static       | 2 
+invalid line
     """
     entries = parsing.parse_mac_table(output)
     assert len(entries) == 2
-    assert entries[0]["vlan"] == "1"
+    assert entries[0]["vid"] == "1"
     assert entries[0]["mac"] == "00:11:22:33:44:55"
+    assert entries[0]["type"] == "Dynamic"
+    assert entries[0]["port"] == "1"
 
-    assert entries[1]["vlan"] == "10"
+    assert entries[1]["vid"] == "10"
     assert entries[1]["mac"] == "AA:BB:CC:DD:EE:FF"
+    assert entries[1]["type"] == "Static"
+    assert entries[1]["port"] == "2"
 
 
 def test_parse_interfaces_error():

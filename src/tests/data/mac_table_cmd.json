@@ -1,0 +1,14 @@
+[
+    {
+        "vid": "1",
+        "mac": "CC:CC:CC:CC:CC:CC",
+        "type": "Management",
+        "port": "CPU"
+    },
+    {
+        "vid": "1",
+        "mac": "FF:FF:FF:FF:FF:FF",
+        "type": "Dynamic",
+        "port": "1"
+    }
+]
