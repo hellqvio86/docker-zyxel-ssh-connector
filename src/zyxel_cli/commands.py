@@ -2,7 +2,6 @@
 
 import argparse
 import logging
-from typing import Optional
 
 from .client import ZyxelSession
 from .config import resolve_password
@@ -47,7 +46,7 @@ def create_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def handle_args(*, args: argparse.Namespace) -> Optional[str]:
+def handle_args(*, args: argparse.Namespace) -> str | None:
     """Execute the requested action described by parsed `args`.
 
     Returns output string for non-interactive commands, or None for interactive.
@@ -73,7 +72,8 @@ def handle_args(*, args: argparse.Namespace) -> Optional[str]:
             return None
         elif args.command == "exec":
             output = session.execute_command(command=args.exec_command)
-            # Log output (escaping newlines could be good but raw string in JSON is handled by json.dumps)
+            # Log output (escaping newlines could be good but raw string in JSON
+            # is handled by json.dumps)
             LOGGER.debug(
                 "Command result",
                 extra={"host": args.host, "command": args.exec_command, "output": output},

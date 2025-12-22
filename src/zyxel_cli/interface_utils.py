@@ -1,7 +1,8 @@
 """Utility functions for interface operations."""
 
 import re
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 
 def is_invalid_port_response(output: str) -> bool:

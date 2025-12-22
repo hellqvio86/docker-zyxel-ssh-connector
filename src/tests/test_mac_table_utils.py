@@ -66,12 +66,12 @@ GS1900# """
 
 def test_parse_mac_table_output_multiple_vlans():
     """Test parsing MAC table with entries from multiple VLANs."""
-    output = """ VID  |    MAC Address    |       Type        |   Ports        
+    output = """ VID  |    MAC Address    |       Type        |   Ports
 ------+-------------------+-------------------+----------------
     1 | AA:BB:CC:11:22:33 |    Management     | CPU
-    1 | 11:22:33:44:55:66 |      Dynamic      | 1 
-    4 | 22:33:44:55:66:77 |      Dynamic      | 1 
-    7 | 33:44:55:66:77:88 |      Static       | 5 
+    1 | 11:22:33:44:55:66 |      Dynamic      | 1
+    4 | 22:33:44:55:66:77 |      Dynamic      | 1
+    7 | 33:44:55:66:77:88 |      Static       | 5
 Total number of entries: 4"""
 
     result = parse_mac_table_output(output)
@@ -85,7 +85,7 @@ Total number of entries: 4"""
 
 def test_parse_mac_table_output_empty():
     """Test parsing empty MAC table."""
-    output = """ VID  |    MAC Address    |       Type        |   Ports        
+    output = """ VID  |    MAC Address    |       Type        |   Ports
 ------+-------------------+-------------------+----------------
 Total number of entries: 0"""
 
@@ -96,7 +96,7 @@ Total number of entries: 0"""
 
 def test_parse_mac_table_output_header_only():
     """Test parsing with only headers (no data)."""
-    output = """ VID  |    MAC Address    |       Type        |   Ports        
+    output = """ VID  |    MAC Address    |       Type        |   Ports
 ------+-------------------+-------------------+----------------"""
 
     result = parse_mac_table_output(output)
@@ -106,7 +106,7 @@ def test_parse_mac_table_output_header_only():
 
 def test_parse_mac_table_output_with_trailing_spaces():
     """Test that parser handles trailing spaces correctly."""
-    output = """    1 | AA:BB:CC:11:22:33 |    Management     | CPU    
+    output = """    1 | AA:BB:CC:11:22:33 |    Management     | CPU
     1 | 11:22:33:44:55:66 |      Dynamic      | 1     """
 
     result = parse_mac_table_output(output)

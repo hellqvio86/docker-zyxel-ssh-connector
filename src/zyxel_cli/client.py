@@ -4,7 +4,6 @@ import logging
 import re
 import sys
 import time
-from typing import Optional
 
 import paramiko
 
@@ -16,12 +15,12 @@ LOGGER = logging.getLogger("zyxel_cli")
 class ZyxelSession:
     """SSH session handler for Zyxel switches"""
 
-    def __init__(self, host: str, user: str, *, password: Optional[str] = None, port: int = 22):
+    def __init__(self, host: str, user: str, *, password: str | None = None, port: int = 22):
         self.host = host
         self.user = user
         self.password = password
         self.port = port
-        self.client: Optional[paramiko.SSHClient] = None
+        self.client: paramiko.SSHClient | None = None
 
     def connect(self) -> None:
         """Establish SSH connection"""
@@ -68,7 +67,7 @@ class ZyxelSession:
 
         # Send the actual command (send bytes to satisfy stubs)
         LOGGER.debug(f"Sending command: {command}", extra={"host": self.host, "command": command})
-        shell.send(f"{command}\n".encode("utf-8"))
+        shell.send(f"{command}\n".encode())
         time.sleep(ZYXEL_SLEEP_BETWEEN_COMMANDS)
 
         # Collect output
@@ -141,7 +140,7 @@ class ZyxelSession:
                             break
                         sys.stdout.write(recv_bytes.decode("utf-8", errors="ignore"))
                         sys.stdout.flush()
-                    except:
+                    except Exception:
                         pass
 
                 if sys.stdin in r:

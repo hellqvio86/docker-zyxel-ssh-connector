@@ -53,7 +53,7 @@ def test_context_manager_calls_connect_and_close(monkeypatch):
     monkeypatch.setattr("zyxel_cli.client.ZyxelSession.connect", fake_connect)
     monkeypatch.setattr("zyxel_cli.client.ZyxelSession.close", fake_close)
 
-    with ZyxelSession(host="h", user="u", password="p") as s:
+    with ZyxelSession(host="h", user="u", password="p"):
         assert called["connect"] is True
 
     assert called["close"] is True
@@ -85,7 +85,6 @@ def test_interactive_exits_on_eof(monkeypatch):
     s.client = FakeClient()  # type: ignore[assignment]
 
     # Monkeypatch termios/tty/select in the module namespace to avoid touching real terminal
-    import zyxel_cli.client as client_mod
 
     class FakeTermios:
         TCSADRAIN = 0

@@ -1,5 +1,4 @@
 import argparse
-from typing import Optional
 
 from zyxel_cli import commands
 
@@ -8,7 +7,7 @@ class FakeSession:
     def __init__(self):
         self.executed = []
         self.interactive_called = False
-        self.next_output: Optional[str] = None
+        self.next_output: str | None = None
 
     def execute_command(self, *, command: str):
         self.executed.append(command)
@@ -97,7 +96,7 @@ def test_handle_args_json_output(monkeypatch, capsys):
 
     args = make_args("version", output_json=True)
 
-    out = commands.handle_args(args=args)
+    commands.handle_args(args=args)
 
     # It should print JSON to stdout
     captured = capsys.readouterr()

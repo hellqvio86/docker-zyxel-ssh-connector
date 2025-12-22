@@ -1,7 +1,7 @@
-from typing import Any, Dict, List, Union
+from typing import Any
 
 
-def expand_port_range(port_str: str) -> List[str]:
+def expand_port_range(port_str: str) -> list[str]:
     """
     Expand port range string into individual ports.
 
@@ -46,7 +46,7 @@ def expand_port_range(port_str: str) -> List[str]:
     return ports
 
 
-def parse_version(output: str) -> Dict[str, str]:
+def parse_version(output: str) -> dict[str, str]:
     """Parse 'show version' output."""
     data = {}
     for line in output.splitlines():
@@ -58,7 +58,7 @@ def parse_version(output: str) -> Dict[str, str]:
     return data
 
 
-def parse_vlan(output: str) -> List[Dict[str, Union[str, List[str]]]]:
+def parse_vlan(output: str) -> list[dict[str, str | list[str]]]:
     """Parse 'show vlan' output."""
     vlans = []
     lines = output.splitlines()
@@ -75,7 +75,7 @@ def parse_vlan(output: str) -> List[Dict[str, Union[str, List[str]]]]:
 
         parts = [p.strip() for p in line.split("|")]
         if len(parts) >= 2:
-            vlan: Dict[str, Union[str, List[str]]] = {
+            vlan: dict[str, str | list[str]] = {
                 "vid": parts[0],
                 "name": parts[1],
             }
@@ -89,7 +89,7 @@ def parse_vlan(output: str) -> List[Dict[str, Union[str, List[str]]]]:
     return vlans
 
 
-def parse_interfaces(output: str) -> List[Dict[str, str]]:
+def parse_interfaces(output: str) -> list[dict[str, str]]:
     """Parse 'show interface status' output (generic table parser)."""
     # Without strict schema, we'll try to parse generic tables or return raw lines
     # If it's the "Invalid port id" error or similar, return as error field
@@ -106,16 +106,17 @@ def parse_interfaces(output: str) -> List[Dict[str, str]]:
     return interfaces
 
 
-def parse_mac_table(output: str) -> List[Dict[str, str]]:
+def parse_mac_table(output: str) -> list[dict[str, str]]:
     """Parse 'show mac address-table' output."""
     from .mac_table_utils import parse_mac_table_output
 
     return parse_mac_table_output(output)
 
 
-def parse_config(output: str) -> Dict[str, Any]:
+def parse_config(output: str) -> dict[str, Any]:
     """Parse 'show running-config' output."""
-    # Running config is huge, returning as lines or raw is usually safest unless specific parsing needed
+    # Running config is huge, returning as lines or raw is usually safest
+    # unless specific parsing needed
     return {"lines": output.splitlines()}
 
 

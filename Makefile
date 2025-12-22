@@ -38,18 +38,17 @@ python-lint-fix:
 	uv run ruff check --fix src
 
 python-format:
-	uv run black src
+	uv run ruff format src
 
 python-format-check:
-	uv run black --check src
+	uv run ruff format --check src
 
 # Validation: code formatting and static typing
 .PHONY: python-validate
 python-validate:
-	@echo "Running import sorting (isort) and static typing (mypy)..."
-	uv run isort src
-	uv run isort src/tests
-	uv run black src
+	@echo "Running linting (ruff), formatting check (ruff), and static typing (mypy)..."
+	uv run ruff check src src/tests
+	uv run ruff format --check src src/tests
 	uv run mypy --show-error-codes src
 
 # Local CLI commands (without Docker) - requires legacy SSH on your system

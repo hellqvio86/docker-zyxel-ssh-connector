@@ -249,7 +249,11 @@ def test_parse_interface_output_empty():
 
 def test_parse_interface_output_with_carriage_returns():
     """Test that parser handles \r\n line endings correctly."""
-    output = "LAG5 is down\r\n  Hardware is Fast Ethernet\r\n  Auto-duplex, Auto-speed, media type is Copper\r\n"
+    output = (
+        "LAG5 is down\r\n"
+        "  Hardware is Fast Ethernet\r\n"
+        "  Auto-duplex, Auto-speed, media type is Copper\r\n"
+    )
 
     result = parse_interface_output(output)
 

@@ -33,7 +33,7 @@ jobs:
         run: |
           make python-install
 
-      - name: Validate code (isort, black, mypy)
+      - name: Validate code (ruff, mypy)
         run: make python-validate
 
       - name: Run tests with coverage

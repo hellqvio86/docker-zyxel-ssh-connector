@@ -10,10 +10,10 @@ def test_parse_version():
 
 def test_parse_vlan():
     output = """
-  VID  |     VLAN Name    |        Untagged Ports        |        Tagged Ports          |  Type   
+  VID  |     VLAN Name    |        Untagged Ports        |        Tagged Ports          |  Type
 -------+------------------+------------------------------+------------------------------+---------
-     1 |          default |                  1-24,lag1-8 |                          --- | Default 
-     2 |            FOOBAR |                          --- |                           23 | Static 
+     1 |          default |                  1-24,lag1-8 |                          --- | Default
+     2 |            FOOBAR |                          --- |                           23 | Static
     """
     vlans = parsing.parse_vlan(output)
     assert len(vlans) == 2
@@ -32,10 +32,10 @@ def test_parse_vlan():
 
 
 def test_parse_mac_table():
-    output = """ VID  |    MAC Address    |       Type        |   Ports        
+    output = """ VID  |    MAC Address    |       Type        |   Ports
 ------+-------------------+-------------------+----------------
-    1 | 00:11:22:33:44:55 |      Dynamic      | 1 
-   10 | AA:BB:CC:DD:EE:FF |      Static       | 2 
+    1 | 00:11:22:33:44:55 |      Dynamic      | 1
+   10 | AA:BB:CC:DD:EE:FF |      Static       | 2
 invalid line
     """
     entries = parsing.parse_mac_table(output)

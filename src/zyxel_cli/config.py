@@ -6,10 +6,9 @@ configuration so the rest of the codebase stays small and testable.
 
 import getpass
 import os
-from typing import Optional
 
 
-def resolve_password(*, password: Optional[str] = None, user: str, host: str) -> str:
+def resolve_password(*, password: str | None = None, user: str, host: str) -> str:
     """Resolve password from explicit argument, `PASSWORD` env, or prompt.
 
     Returns the resolved password string.
