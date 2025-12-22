@@ -1,0 +1,44 @@
+{
+    "interfaces": [
+        {
+            "port_id": 1,
+            "parsed": {
+                "name": "GigabitEthernet1",
+                "status": "up",
+                "hardware": "Gigabit Ethernet",
+                "duplex": "Auto",
+                "speed": "Auto",
+                "media_type": "Copper",
+                "flow_control": "off",
+                "statistics": {
+                    "packets_input": 1059113630,
+                    "bytes_input": 2934353449,
+                    "throttles_input": 0,
+                    "broadcasts": 57946314,
+                    "multicasts": 82941875,
+                    "runts": 0,
+                    "giants": 0,
+                    "input_errors": 0,
+                    "crc_errors": 0,
+                    "frame_errors": 0,
+                    "overrun_errors": 0,
+                    "ignored_errors": 0,
+                    "multicast": 82941875,
+                    "pause_input": 0,
+                    "dribble_packets": 0,
+                    "packets_output": 543458268,
+                    "bytes_output": 2398562252,
+                    "underrun": 0,
+                    "output_errors": 0,
+                    "collisions": 0,
+                    "interface_resets": 0,
+                    "babbles": 0,
+                    "late_collisions": 0,
+                    "deferred": 0,
+                    "pause_output": 0
+                }
+            },
+            "raw_output": "show interface 1\r\nGigabitEthernet1 is up\r\n  Hardware is Gigabit Ethernet\r\n  Auto-duplex, Auto-speed, media type is Copper\r\n  flow-control is off\r\n     1059113630 packets input, 2934353449 bytes, 0 throttles\r\n     Received 57946314 broadcasts (82941875 multicasts)\r\n     0 runts, 0 giants, 0 throttles\r\n     0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored\r\n     82941875 multicast, 0 pause input\r\n     0 input packets with dribble condition detected\r\n     543458268 packets output, 2398562252 bytes, 0 underrun\r\n     0 output errors, 0 collisions, 0 interface resets\r\n     0 babbles, 0 late collision, 0 deferred\r\n     0 PAUSE output\r\nGS1900# "
+        }
+    ]
+}
