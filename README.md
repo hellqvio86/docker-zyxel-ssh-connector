@@ -185,7 +185,7 @@ Following commands are supported with JSON output:
 | `config` | Show running configuration | ❌ | [config_cmd.json](https://raw.githubusercontent.com/hellqvio86/docker-zyxel-ssh-connector/main/src/tests/data/config_cmd.json) |
 | `interfaces` | Show interface status | ✅ | [intefaces_cmd.json](https://raw.githubusercontent.com/hellqvio86/docker-zyxel-ssh-connector/main/src/tests/data/intefaces_cmd.json) |
 | `vlans` | Show VLAN configuration | ✅ | [vlans_cmd.json](https://raw.githubusercontent.com/hellqvio86/docker-zyxel-ssh-connector/main/src/tests/data/vlans_cmd.json) |
-| `mac-table` | Show MAC address table | ❌ | [mac-table_cmd.json](https://raw.githubusercontent.com/hellqvio86/docker-zyxel-ssh-connector/main/src/tests/data/mac-table_cmd.json) |
+| `mac-table` | Show MAC address table | ✅| [mac_tabble_cmd.json](https://raw.githubusercontent.com/hellqvio86/docker-zyxel-ssh-connector/main/src/tests/data/mac_table_cmd.json) |
 
 ## Development
 

@@ -64,15 +64,9 @@ def parse_interfaces(output: str) -> List[Dict[str, str]]:
 
 def parse_mac_table(output: str) -> List[Dict[str, str]]:
     """Parse 'show mac address-table' output."""
-    entries = []
-    lines = output.splitlines()
-    for line in lines:
-        # Heuristic for MAC table usually: VLAN MAC Type Port
-        # Example: 1  00:11:22:33:44:55  dynamic  1
-        parts = line.split()
-        if len(parts) >= 4 and ":" in parts[1]:  # valid-ish MAC
-            entries.append({"vlan": parts[0], "mac": parts[1], "type": parts[2], "port": parts[3]})
-    return entries
+    from .mac_table_utils import parse_mac_table_output
+
+    return parse_mac_table_output(output)
 
 
 def parse_config(output: str) -> Dict[str, Any]:
