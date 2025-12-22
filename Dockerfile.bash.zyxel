@@ -15,6 +15,10 @@ RUN apt-get update && \
     openssh-client \
     && rm -rf /var/lib/apt/lists/*
 
+ARG VERSION=latest
+LABEL version=$VERSION
+
 WORKDIR /root
+RUN echo $VERSION > /VERSION
 
 CMD ["/bin/bash"]

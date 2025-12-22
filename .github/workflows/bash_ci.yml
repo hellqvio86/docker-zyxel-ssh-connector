@@ -7,7 +7,7 @@ on:
 jobs:
   check-version:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
     outputs:
       changed: ${{ steps.check.outputs.changed }}
       version: ${{ steps.check.outputs.version }}
@@ -22,7 +22,7 @@ jobs:
     needs: check-version
     runs-on: ubuntu-latest
     if: |
-      github.event_name == 'push' &&
+      (github.event_name == 'push' || github.event_name == 'pull_request') &&
       (github.ref != 'refs/heads/main' || needs.check-version.outputs.changed == 'true')
     permissions:
       contents: write
@@ -54,6 +54,7 @@ jobs:
       - name: Build docker image
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/zyxel-ssh-bash:${{ needs.check-version.outputs.version }} \
+                       --build-arg VERSION=${{ needs.check-version.outputs.version }} \
                        -f Dockerfile.bash.zyxel .
 
       - name: Push docker image
@@ -65,5 +66,7 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            VERSION=${{ needs.check-version.outputs.version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

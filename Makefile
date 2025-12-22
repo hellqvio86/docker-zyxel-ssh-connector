@@ -1,4 +1,5 @@
 .PHONY: build run connect clean python-build python-install python-clean python-test python-test-verbose python-test-cov python-lint python-lint-fix python-format python-format-check python-validate show-version show-config show-interfaces show-vlans show-mac-table cli-version cli-config cli-interfaces cli-vlans cli-mac-table cli-connect cli-exec help shell docker-build docker-final docker-clean docker-final-bash
+VERSION := $(shell grep -m 1 '^version =' pyproject.toml | cut -d '"' -f 2)
 
 # Python development commands
 python-build:
@@ -139,13 +140,13 @@ docker-build:
 	podman build -t zyxel-builder -f Dockerfile.build .
 
 docker-final: docker-build
-	@echo "Building final runtime image (zyxel-ssh-connector)..."
-	podman build -t zyxel-ssh-connector -f Dockerfile .
+	@echo "Building final runtime image (zyxel-ssh-connector:$(VERSION))..."
+	podman build -t zyxel-ssh-connector:$(VERSION) -t zyxel-ssh-connector:latest -f Dockerfile .
 
 
 docker-final-bash: docker-build
-	@echo "Building final runtime image (zyxel-ssh-bash)..."
-	podman build -t zyxel-ssh-bash -f Dockerfile.bash.zyxel .
+	@echo "Building final runtime image (zyxel-ssh-bash:$(VERSION))..."
+	podman build -t zyxel-ssh-bash:$(VERSION) -t zyxel-ssh-bash:latest --build-arg VERSION=$(VERSION) -f Dockerfile.bash.zyxel .
 
 docker-clean:
 	@echo "Removing images zyxel-builder and zyxel-ssh-connector..."
