@@ -1,6 +1,6 @@
 [project]
 name = "zyxel-cli"
-version = "0.1.12"
+version = "0.1.13"
 description = "CLI tool for Zyxel GS1900 switches"
 requires-python = ">=3.14"
 dependencies = [
