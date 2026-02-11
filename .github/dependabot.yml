@@ -5,9 +5,8 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
-    # Dependabot will read `pyproject.toml` and attempt to update dependencies.
-    # `uv.lock` is a project lockfile; Dependabot will surface updates based on
-    # the manifest and lockfile.
+    assignees:
+      - "hellqvio86"
 
   - package-ecosystem: "docker"
     directory: "/"
@@ -22,6 +21,8 @@ updates:
     commit-message:
       prefix: "docker"
       include: "scope"
+    assignees:
+      - "hellqvio86"
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -36,3 +37,5 @@ updates:
     commit-message:
       prefix: "ci"
       include: "scope"
+    assignees:
+      - "hellqvio86"
