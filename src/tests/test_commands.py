@@ -1,4 +1,6 @@
 import argparse
+from io import StringIO
+from unittest.mock import patch
 
 from zyxel_cli import commands
 
@@ -45,68 +47,57 @@ def test_create_parser_contains_subcommands():
     assert args.command == "version"
 
 
-def test_handle_args_exec_calls_execute_and_returns_output(monkeypatch):
+def test_handle_args_exec_calls_execute_and_returns_output():
     fake = FakeSession()
-    monkeypatch.setattr(commands, "ZyxelSession", lambda *a, **k: fake)
-    monkeypatch.setattr(commands, "resolve_password", lambda *a, **k: "pw")
-
-    args = make_args("exec", exec_command="show ip interface")
-
-    out = commands.handle_args(args=args)
+    with patch.object(commands, "ZyxelSession", new=lambda *a, **k: fake):
+        with patch.object(commands, "resolve_password", new=lambda *a, **k: "pw"):
+            args = make_args("exec", exec_command="show ip interface")
+            out = commands.handle_args(args=args)
 
     assert out == "OUT: show ip interface"
     assert "show ip interface" in fake.executed
 
 
-def test_handle_args_mapped_command(monkeypatch, capsys):
+def test_handle_args_mapped_command():
     fake = FakeSession()
-    monkeypatch.setattr(commands, "ZyxelSession", lambda *a, **k: fake)
-    monkeypatch.setattr(commands, "resolve_password", lambda *a, **k: "pw")
-
-    args = make_args("version")
-
-    out = commands.handle_args(args=args)
+    with patch.object(commands, "ZyxelSession", new=lambda *a, **k: fake):
+        with patch.object(commands, "resolve_password", new=lambda *a, **k: "pw"):
+            args = make_args("version")
+            out = commands.handle_args(args=args)
 
     assert out == "OUT: show version"
     assert fake.executed == ["show version"]
 
 
-def test_handle_args_interactive_calls_session(monkeypatch):
+def test_handle_args_interactive_calls_session():
     fake = FakeSession()
-    monkeypatch.setattr(commands, "ZyxelSession", lambda *a, **k: fake)
-    monkeypatch.setattr(commands, "resolve_password", lambda *a, **k: "pw")
-
-    args = make_args("interactive")
-
-    out = commands.handle_args(args=args)
+    with patch.object(commands, "ZyxelSession", new=lambda *a, **k: fake):
+        with patch.object(commands, "resolve_password", new=lambda *a, **k: "pw"):
+            args = make_args("interactive")
+            out = commands.handle_args(args=args)
 
     assert out is None
     assert fake.interactive_called is True
 
 
-def test_handle_args_json_output(monkeypatch, capsys):
+def test_handle_args_json_output():
     fake = FakeSession()
-    monkeypatch.setattr(commands, "ZyxelSession", lambda *a, **k: fake)
-    monkeypatch.setattr(commands, "resolve_password", lambda *a, **k: "pw")
-
-    # Command output that fits the dummy parse_version regex/logic if possible
-    # or just check that it calls json.dumps on the output
-    # Since parse_version splits by colon, let's provide something parseable
     fake.next_output = "Key : Value\nKey2 : Value2"
+    stdout = StringIO()
+    with patch.object(commands, "ZyxelSession", new=lambda *a, **k: fake):
+        with patch.object(commands, "resolve_password", new=lambda *a, **k: "pw"):
+            with patch("sys.stdout", new=stdout):
+                args = make_args("version", output_json=True)
+                commands.handle_args(args=args)
 
-    args = make_args("version", output_json=True)
-
-    commands.handle_args(args=args)
-
-    # It should print JSON to stdout
-    captured = capsys.readouterr()
-    assert '"Key": "Value"' in captured.out
-    assert '"Key2": "Value2"' in captured.out
-    assert "{" in captured.out
-    assert "}" in captured.out
+    captured = stdout.getvalue()
+    assert '"Key": "Value"' in captured
+    assert '"Key2": "Value2"' in captured
+    assert "{" in captured
+    assert "}" in captured
 
 
-def test_handle_args_interfaces_iterates_through_ports(monkeypatch, capsys):
+def test_handle_args_interfaces_iterates_through_ports():
     """Test that interfaces command iterates through port IDs until invalid."""
 
     # Track which commands are executed
@@ -133,12 +124,12 @@ def test_handle_args_interfaces_iterates_through_ports(monkeypatch, capsys):
         def __exit__(self, exc_type, exc, tb):
             return False
 
-    monkeypatch.setattr(commands, "ZyxelSession", lambda *a, **k: CustomFakeSession())
-    monkeypatch.setattr(commands, "resolve_password", lambda *a, **k: "pw")
-
-    args = make_args("interfaces")
-
-    out = commands.handle_args(args=args)
+    stdout = StringIO()
+    with patch.object(commands, "ZyxelSession", new=lambda *a, **k: CustomFakeSession()):
+        with patch.object(commands, "resolve_password", new=lambda *a, **k: "pw"):
+            with patch("sys.stdout", new=stdout):
+                args = make_args("interfaces")
+                out = commands.handle_args(args=args)
 
     # Should have called show interface 1, 2, and 3
     assert "show interface 1" in executed_commands
@@ -151,6 +142,6 @@ def test_handle_args_interfaces_iterates_through_ports(monkeypatch, capsys):
     assert "GigabitEthernet2 is down" in out
 
     # Should have printed to stdout
-    captured = capsys.readouterr()
-    assert "Interface 1" in captured.out
-    assert "Interface 2" in captured.out
+    captured = stdout.getvalue()
+    assert "Interface 1" in captured
+    assert "Interface 2" in captured

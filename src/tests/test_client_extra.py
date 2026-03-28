@@ -1,136 +1,118 @@
 import getpass
-
-import pytest
+import sys
+from unittest import TestCase
+from unittest.mock import patch
 
 from zyxel_cli.client import ZyxelSession
 from zyxel_cli.config import resolve_password
 
 
-def test_password_arg_wins_over_env(monkeypatch):
-    monkeypatch.setenv("PASSWORD", "envpw")
-    pw = resolve_password(password="argpw", user="user", host="host")
-    assert pw == "argpw"
+class TestClientExtra(TestCase):
+    def test_password_arg_wins_over_env(self):
+        with patch.dict("os.environ", {"PASSWORD": "envpw"}, clear=False):
+            pw = resolve_password(password="argpw", user="user", host="host")
+        self.assertEqual(pw, "argpw")
 
+    def test_password_env_used_when_no_arg(self):
+        with patch.dict("os.environ", {"PASSWORD": "envpw"}, clear=False):
+            pw = resolve_password(password=None, user="user", host="host")
+        self.assertEqual(pw, "envpw")
 
-def test_password_env_used_when_no_arg(monkeypatch):
-    monkeypatch.setenv("PASSWORD", "envpw")
-    pw = resolve_password(password=None, user="user", host="host")
-    assert pw == "envpw"
+    def test_password_prompt_used_when_no_arg_or_env(self):
+        with patch.dict("os.environ", {}, clear=True):
+            with patch.object(getpass, "getpass", return_value="promptpw"):
+                pw = resolve_password(password=None, user="user", host="host")
+        self.assertEqual(pw, "promptpw")
 
+    def test_connect_raises_connectionerror_when_ssh_fails(self):
+        class FakeSSH:
+            def set_missing_host_key_policy(self, p):
+                pass
 
-def test_password_prompt_used_when_no_arg_or_env(monkeypatch):
-    monkeypatch.delenv("PASSWORD", raising=False)
-    monkeypatch.setattr(getpass, "getpass", lambda prompt: "promptpw")
-    pw = resolve_password(password=None, user="user", host="host")
-    assert pw == "promptpw"
+            def connect(self, **k):
+                raise Exception("boom")
 
+        with patch("zyxel_cli.client.paramiko.SSHClient", new=lambda: FakeSSH()):
+            s = ZyxelSession(host="h", user="u", password="p")
+            with self.assertRaises(ConnectionError) as exc:
+                s.connect()
+        self.assertIn("Failed to connect to h", str(exc.exception))
 
-def test_connect_raises_connectionerror_when_ssh_fails(monkeypatch):
-    class FakeSSH:
-        def set_missing_host_key_policy(self, p):
-            pass
+    def test_context_manager_calls_connect_and_close(self):
+        called = {"connect": False, "close": False}
 
-        def connect(self, **k):
-            raise Exception("boom")
+        def fake_connect(self):
+            called["connect"] = True
 
-    monkeypatch.setattr("zyxel_cli.client.paramiko.SSHClient", lambda: FakeSSH())
+        def fake_close(self):
+            called["close"] = True
 
-    s = ZyxelSession(host="h", user="u", password="p")
-    with pytest.raises(ConnectionError) as exc:
-        s.connect()
-    assert "Failed to connect to h" in str(exc.value)
+        with patch("zyxel_cli.client.ZyxelSession.connect", new=fake_connect):
+            with patch("zyxel_cli.client.ZyxelSession.close", new=fake_close):
+                with ZyxelSession(host="h", user="u", password="p"):
+                    self.assertTrue(called["connect"])
+        self.assertTrue(called["close"])
 
+    def test_execute_command_raises_when_not_connected(self):
+        s = ZyxelSession(host="h", user="u", password="p")
+        s.client = None
+        with self.assertRaises(RuntimeError):
+            s.execute_command(command="show version")
 
-def test_context_manager_calls_connect_and_close(monkeypatch):
-    called = {"connect": False, "close": False}
+    def test_interactive_exits_on_eof(self):
+        class FakeShell:
+            def settimeout(self, t):
+                pass
 
-    def fake_connect(self):
-        called["connect"] = True
+            def recv(self, n):
+                return b""
 
-    def fake_close(self):
-        called["close"] = True
+            def send(self, data):
+                pass
 
-    monkeypatch.setattr("zyxel_cli.client.ZyxelSession.connect", fake_connect)
-    monkeypatch.setattr("zyxel_cli.client.ZyxelSession.close", fake_close)
+        class FakeClient:
+            def invoke_shell(self):
+                return FakeShell()
 
-    with ZyxelSession(host="h", user="u", password="p"):
-        assert called["connect"] is True
+        s = ZyxelSession(host="h", user="u", password="p")
+        s.client = FakeClient()  # type: ignore[assignment]
 
-    assert called["close"] is True
+        class FakeTermios:
+            TCSADRAIN = 0
 
+            @staticmethod
+            def tcgetattr(stdin):
+                return "old"
 
-def test_execute_command_raises_when_not_connected():
-    s = ZyxelSession(host="h", user="u", password="p")
-    s.client = None
-    with pytest.raises(RuntimeError):
-        s.execute_command(command="show version")
+            @staticmethod
+            def tcsetattr(stdin, when, old):
+                return None
 
+        class FakeTty:
+            @staticmethod
+            def setraw(fd):
+                return None
 
-def test_interactive_exits_on_eof(monkeypatch):
-    class FakeShell:
-        def settimeout(self, t):
-            pass
+            @staticmethod
+            def setcbreak(fd):
+                return None
 
-        def recv(self, n):
-            return b""
+        class FakeStdin:
+            def fileno(self):
+                return 0
 
-        def send(self, data):
-            pass
+            def read(self, n=1):
+                return ""
 
-    class FakeClient:
-        def invoke_shell(self):
-            return FakeShell()
+        fake_stdin = FakeStdin()
 
-    s = ZyxelSession(host="h", user="u", password="p")
-    s.client = FakeClient()  # type: ignore[assignment]
+        class FakeSelect:
+            @staticmethod
+            def select(r, w, e):
+                return ([fake_stdin], [], [])
 
-    # Monkeypatch termios/tty/select in the module namespace to avoid touching real terminal
+        import zyxel_cli.client as client_mod2
 
-    class FakeTermios:
-        TCSADRAIN = 0
-
-        @staticmethod
-        def tcgetattr(stdin):
-            return "old"
-
-        @staticmethod
-        def tcsetattr(stdin, when, old):
-            return None
-
-    class FakeTty:
-        @staticmethod
-        def setraw(fd):
-            return None
-
-        @staticmethod
-        def setcbreak(fd):
-            return None
-
-    # Inject fake termios/tty/select modules into sys.modules so local imports pick them up
-    import sys as _sys
-
-    monkeypatch.setitem(_sys.modules, "termios", FakeTermios)
-    monkeypatch.setitem(_sys.modules, "tty", FakeTty)
-
-    class FakeStdin:
-        def fileno(self):
-            return 0
-
-        def read(self, n=1):
-            return ""  # simulate EOF to break loop
-
-    fake_stdin = FakeStdin()
-
-    class FakeSelect:
-        @staticmethod
-        def select(r, w, e):
-            return ([fake_stdin], [], [])
-
-    monkeypatch.setitem(_sys.modules, "select", FakeSelect)
-
-    import zyxel_cli.client as client_mod2
-
-    monkeypatch.setattr(client_mod2.sys, "stdin", fake_stdin)
-
-    # Should not raise
-    s.interactive()
+        with patch.dict(sys.modules, {"termios": FakeTermios, "tty": FakeTty, "select": FakeSelect}):
+            with patch.object(client_mod2.sys, "stdin", fake_stdin):
+                s.interactive()

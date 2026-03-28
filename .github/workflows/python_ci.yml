@@ -37,7 +37,9 @@ jobs:
         run: make python-validate
 
       - name: Run tests with coverage
-        run: uv run pytest --cov=src/zyxel_cli --cov-report=term-missing --maxfail=1
+        run: |
+          uv run coverage run -m src.tests.runner
+          uv run coverage report -m
 
       - name: Generate Coverage Badge
         run: |

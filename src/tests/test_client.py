@@ -1,4 +1,5 @@
 import time
+from unittest.mock import patch
 
 from zyxel_cli.client import ZyxelSession
 
@@ -52,7 +53,7 @@ class FakeClient:
         pass
 
 
-def test_execute_command_collects_output(monkeypatch):
+def test_execute_command_collects_output():
     # Arrange: fake shell will have an initial prompt and then output after command
     initial = [b"\r\nSwitch>\r\n"]
     response = [b"Output line 1\r\n", b"Output line 2\r\n"]
@@ -62,10 +63,8 @@ def test_execute_command_collects_output(monkeypatch):
     session = ZyxelSession(host="host", user="user", password="pass")
     session.client = client  # type: ignore[assignment]
 
-    # Speed up sleeps
-    monkeypatch.setattr(time, "sleep", lambda s: None)
-
-    out = session.execute_command(command="show version")
+    with patch.object(time, "sleep", new=lambda s: None):
+        out = session.execute_command(command="show version")
 
     # At least the response should contain expected data
     assert "Output line 2" in out

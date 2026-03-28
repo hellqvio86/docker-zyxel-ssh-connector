@@ -24,13 +24,15 @@ python-clean:
 
 # Testing commands
 python-test:
-	uv run pytest
+	uv run python -m src.tests.runner
 
 python-test-verbose:
-	uv run pytest -vv
+	uv run python -m src.tests.runner --verbose
 
 python-test-cov:
-	uv run pytest --cov=src/zyxel_cli --cov-report=html --cov-report=term-missing
+	uv run coverage run -m src.tests.runner
+	uv run coverage html
+	uv run coverage report -m
 
 python-lint:
 	uv run ruff check src

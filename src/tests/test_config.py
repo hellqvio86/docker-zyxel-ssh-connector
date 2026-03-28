@@ -1,12 +1,8 @@
-import pytest
+from unittest import TestCase
 
 
-@pytest.fixture
-def noop_sleep():
-    """A no-op sleep helper for tests that want to avoid real delays."""
-    return lambda s: None
-
-
-def test_noop_sleep_fixture_available(noop_sleep):
-    noop_sleep(0.01)
-    assert True
+class TestConfig(TestCase):
+    def test_noop_sleep_helper_available(self):
+        noop_sleep = lambda s: None
+        noop_sleep(0.01)
+        self.assertTrue(True)
