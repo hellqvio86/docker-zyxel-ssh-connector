@@ -113,6 +113,8 @@ class TestClientExtra(TestCase):
 
         import zyxel_cli.client as client_mod2
 
-        with patch.dict(sys.modules, {"termios": FakeTermios, "tty": FakeTty, "select": FakeSelect}):
+        with patch.dict(
+            sys.modules, {"termios": FakeTermios, "tty": FakeTty, "select": FakeSelect}
+        ):
             with patch.object(client_mod2.sys, "stdin", fake_stdin):
                 s.interactive()
