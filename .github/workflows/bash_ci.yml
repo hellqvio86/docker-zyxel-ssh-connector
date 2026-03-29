@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     outputs:
       changed: ${{ steps.check.outputs.changed }}
       version: ${{ steps.check.outputs.version }}
@@ -24,8 +24,9 @@ jobs:
     needs: check-version
     runs-on: ubuntu-latest
     if: |
-      (github.event_name == 'push' || github.event_name == 'pull_request') &&
-      (github.ref != 'refs/heads/main' || needs.check-version.outputs.changed == 'true')
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main' &&
+      needs.check-version.outputs.changed == 'true'
     permissions:
       contents: write
 
@@ -54,10 +55,14 @@ jobs:
             type=sha,prefix=sha-
 
       - name: Build docker image
+        env:
+          IMAGE_OWNER: ${{ secrets.DOCKER_USERNAME }}
+          IMAGE_VERSION: ${{ needs.check-version.outputs.version }}
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/zyxel-ssh-bash:${{ needs.check-version.outputs.version }} \
-                       --build-arg VERSION=${{ needs.check-version.outputs.version }} \
-                       -f Dockerfile.bash.zyxel .
+          docker build \
+            -t "${IMAGE_OWNER}/zyxel-ssh-bash:${IMAGE_VERSION}" \
+            --build-arg VERSION="$IMAGE_VERSION" \
+            -f Dockerfile.bash.zyxel .
 
       - name: Push docker image
         uses: docker/build-push-action@v7
