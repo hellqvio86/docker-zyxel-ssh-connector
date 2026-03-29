@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          fetch-depth: 0 # Need full history for pushing, though shallow with token often works, but safe choice
+          fetch-depth: 0  # Keep full history for badge commits.
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -60,7 +60,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     outputs:
       changed: ${{ steps.check.outputs.changed }}
       version: ${{ steps.check.outputs.version }}
@@ -77,8 +77,9 @@ jobs:
     permissions:
       contents: read
     if: |
-      (github.event_name == 'push' || github.event_name == 'pull_request') &&
-      (github.ref != 'refs/heads/main' || needs.check-version.outputs.changed == 'true')
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main' &&
+      needs.check-version.outputs.changed == 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -102,7 +103,7 @@ jobs:
             type=raw,value=${{ needs.check-version.outputs.version }}
             type=raw,value=latest,enable={{is_default_branch}}
             type=sha,prefix=sha-
-      
+
       # Build docker image
       - name: "Build docker image"
         if: github.event_name == 'push' && github.ref != 'refs/heads/main'
@@ -115,7 +116,7 @@ jobs:
         with:
           context: .
           file: ./Dockerfile
-          push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
@@ -126,11 +127,14 @@ jobs:
   create-release:
     name: Create Draft Release
     needs: [docker-build, check-version]
-    if: github.ref == 'refs/heads/main'
+    if: >-
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main' &&
+      needs.check-version.outputs.changed == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -141,7 +145,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag -a "v${{ needs.check-version.outputs.version }}" -m "Release v${{ needs.check-version.outputs.version }}"
+          git tag -a "v${{ needs.check-version.outputs.version }}" \
+            -m "Release v${{ needs.check-version.outputs.version }}"
           git push origin "v${{ needs.check-version.outputs.version }}"
 
       - name: Create draft release
