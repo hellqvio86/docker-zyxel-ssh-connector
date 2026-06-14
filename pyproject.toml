@@ -5,7 +5,7 @@ description = "CLI tool for Zyxel GS1900 switches"
 requires-python = ">=3.14"
 dependencies = [
     "paramiko>=5.0.0",
-    "cryptography>=48.0.0",
+    "cryptography>=49.0.0",
 ]
 
 [project.scripts]
