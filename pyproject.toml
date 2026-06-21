@@ -23,7 +23,7 @@ dev = [
     "mypy>=2.1.0",
     "types-paramiko>=4.0.0.20260518",
     "coverage-badge>=1.0.0",
-    "coverage[toml]>=7.14.1",
+    "coverage[toml]>=7.14.2",
 ]
 
 [tool.coverage.run]
