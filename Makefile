@@ -33,6 +33,7 @@ python-test-cov:
 	uv run coverage run -m src.tests.runner
 	uv run coverage html
 	uv run coverage report -m
+	uv run python scripts/generate_coverage_badge.py
 
 python-lint:
 	uv run ruff check src
