@@ -53,8 +53,8 @@ def generate_badge(output_path: str = "coverage.svg") -> None:
     </g>
 </svg>
 """
-    with open(output_path, "w", encoding="utf-8") as f:
-        f.write(svg)
+    with open(output_path, "w", encoding="utf-8") as fdesc:
+        fdesc.write(svg)
     print(f"Saved coverage badge to {output_path} ({pct_str})")
 
 
