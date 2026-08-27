@@ -35,6 +35,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y --no-install-recommends openssh-client ca-certificates && \
+    rm -rf /usr/local/lib/python*/site-packages/pip* /root/.cache && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Copy the pre-built virtualenv from the builder stage
