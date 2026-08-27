@@ -138,17 +138,29 @@ build:
 	@echo "Building Docker container (multi-stage builder + final)..."
 	@$(MAKE) docker-final
 
-docker-build: docker-final docker-final-bash
+docker-build: docker-final docker-final-bash scan-image scan-image-bash
 
 # Python-based CLI container (multi-stage)
 docker-final:
 	@echo "Building final runtime image (zyxel-ssh-connector:$(VERSION))..."
 	podman build -t zyxel-ssh-connector:$(VERSION) -t zyxel-ssh-connector:latest --build-arg VERSION=$(VERSION) -f Dockerfile .
 
+scan-image:
+	@echo "Scanning zyxel-ssh-connector:latest with Trivy for CRITICAL vulnerabilities..."
+	@podman run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --severity CRITICAL --ignore-unfixed --exit-code 1 zyxel-ssh-connector:latest 2>/dev/null || \
+	docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --severity CRITICAL --ignore-unfixed --exit-code 1 zyxel-ssh-connector:latest
+	@echo "✅ Trivy scan passed for zyxel-ssh-connector."
+
 # Bash-based legacy SSH container
 docker-final-bash:
 	@echo "Building final runtime image (zyxel-ssh-bash:$(VERSION))..."
 	podman build -t zyxel-ssh-bash:$(VERSION) -t zyxel-ssh-bash:latest --build-arg VERSION=$(VERSION) -f Dockerfile.bash.zyxel .
+
+scan-image-bash:
+	@echo "Scanning zyxel-ssh-bash:latest with Trivy for CRITICAL vulnerabilities..."
+	@podman run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --severity CRITICAL --ignore-unfixed --exit-code 1 zyxel-ssh-bash:latest 2>/dev/null || \
+	docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --severity CRITICAL --ignore-unfixed --exit-code 1 zyxel-ssh-bash:latest
+	@echo "✅ Trivy scan passed for zyxel-ssh-bash."
 
 docker-clean:
 	@echo "Removing zyxel-ssh-connector and zyxel-ssh-bash images..."
