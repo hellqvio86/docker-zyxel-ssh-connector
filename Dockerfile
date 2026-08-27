@@ -4,6 +4,7 @@ FROM python:3.14-slim AS builder
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && \
+    apt-get upgrade -y && \
     apt-get install -y --no-install-recommends \
     build-essential \
     gcc \
@@ -32,6 +33,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Install SSH client and certificates (needed to connect to switches)
 RUN apt-get update && \
+    apt-get upgrade -y && \
     apt-get install -y --no-install-recommends openssh-client ca-certificates && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 

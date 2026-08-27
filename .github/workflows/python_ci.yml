@@ -56,6 +56,63 @@ jobs:
             git push
           fi
 
+  security-scan:
+    name: Trivy Security Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Run Trivy Filesystem Scan (SARIF Report)
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-fs-results.sarif'
+          severity: 'CRITICAL,HIGH,MEDIUM,LOW'
+
+      - name: Build Docker Image
+        run: |
+          docker build -t zyxel-ssh-connector:test -f Dockerfile .
+
+      - name: Run Trivy Container Image Scan (SARIF Report)
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: 'zyxel-ssh-connector:test'
+          format: 'sarif'
+          output: 'trivy-image-results.sarif'
+          severity: 'CRITICAL,HIGH,MEDIUM,LOW'
+
+      - name: Upload Filesystem SARIF to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        continue-on-error: true
+        with:
+          sarif_file: 'trivy-fs-results.sarif'
+          category: 'trivy-filesystem'
+
+      - name: Upload Container SARIF to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        continue-on-error: true
+        with:
+          sarif_file: 'trivy-image-results.sarif'
+          category: 'trivy-container-image'
+
+      - name: Enforce Zero CRITICAL Vulnerabilities
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: 'zyxel-ssh-connector:test'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          severity: 'CRITICAL'
+
   check-version:
     runs-on: ubuntu-latest
     permissions:
