@@ -91,7 +91,7 @@ jobs:
           severity: 'CRITICAL,HIGH'
 
       - name: Upload Filesystem SARIF to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
         continue-on-error: true
         with:
@@ -99,7 +99,7 @@ jobs:
           category: 'trivy-filesystem'
 
       - name: Upload Container SARIF to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
         continue-on-error: true
         with:
