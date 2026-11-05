@@ -408,3 +408,9 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 5. Commit your changes (`git commit -m 'Add amazing feature'`)
 6. Push to the branch (`git push origin feature/amazing-feature`)
 7. Open a Pull Request
+
+<p align="right">
+  <a href="https://www.buymeacoffee.com/olofhellqvc">
+    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me a Coffee" height="48">
+  </a>
+</p>
