@@ -1,4 +1,4 @@
-.PHONY: build run connect clean python-build python-install python-clean python-test python-test-verbose python-test-cov python-lint python-lint-fix python-format python-format-check python-validate show-version show-config show-interfaces show-vlans show-mac-table cli-version cli-config cli-interfaces cli-vlans cli-mac-table cli-connect cli-exec help shell docker-build docker-final docker-clean docker-final-bash
+.PHONY: build run connect clean python-build python-install python-clean python-test python-test-verbose python-test-cov python-lint python-lint-fix python-format python-format-check python-validate show-version show-config show-interfaces show-vlans show-mac-table cli-version cli-config cli-interfaces cli-vlans cli-mac-table cli-connect cli-exec help shell docker-build docker-final docker-clean docker-final-bash renovate renovate-summary
 VERSION := $(shell grep -m 1 '^version =' pyproject.toml | cut -d '"' -f 2)
 
 # Python development commands
@@ -287,3 +287,10 @@ help:
 	@echo "  make build"
 	@echo "  make show-version host=192.168.1.1"
 	@echo "  make connect host=192.168.1.1 user=admin password=secret"
+
+renovate:
+	@./bin/renovate/run.sh
+
+renovate-summary:
+	@./bin/renovate/run.sh --summary
+
