@@ -1,5 +1,5 @@
 # Builder stage: creates a self-contained virtualenv with the app and dependencies
-FROM python:3.14-slim AS builder
+FROM python:3.14-slim@sha256:af8a5aa14780025dbfbcfbc81bd8a91ebd87711dd5b0f48ed71090949dd7cb1d AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -27,7 +27,7 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | sh && \
     uv pip install --python /opt/venv/bin/python .
 
 # Final runtime image: minimal image containing only runtime deps and the venv copied from builder
-FROM python:3.14-slim AS runtime
+FROM python:3.14-slim@sha256:af8a5aa14780025dbfbcfbc81bd8a91ebd87711dd5b0f48ed71090949dd7cb1d AS runtime
 
 ENV DEBIAN_FRONTEND=noninteractive
 
