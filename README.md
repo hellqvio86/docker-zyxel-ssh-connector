@@ -27,6 +27,10 @@ Modern SSH clients (OpenSSH 8.8+) have deprecated older algorithms like `ssh-rsa
 The fastest way to get started without installing anything or cloning the repo.
 
 ```bash
+# Pull the pre-built images
+docker pull hellqvio/zyxel-ssh-connector:latest
+docker pull hellqvio/zyxel-ssh-bash:latest
+
 # Get switch version
 docker run --rm --net=host hellqvio/zyxel-ssh-connector:latest zyxel-cli -H 192.168.1.1 version
 
