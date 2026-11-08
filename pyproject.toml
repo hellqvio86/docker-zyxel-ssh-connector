@@ -22,7 +22,7 @@ dev = [
     "isort>=9.0.2",
     "mypy>=2.4.1",
     "types-paramiko>=5.1.0.20261030",
-    "coverage[toml]>=7.17.0",
+    "coverage[toml]>=7.17.2",
 ]
 
 [tool.coverage.run]
