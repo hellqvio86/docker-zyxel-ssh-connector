@@ -21,7 +21,7 @@ dev = [
     "ruff>=0.17.3",
     "isort>=9.0.2",
     "mypy>=2.4.1",
-    "types-paramiko>=5.0.0.20261021",
+    "types-paramiko>=5.1.0.20261030",
     "coverage[toml]>=7.17.0",
 ]
 
